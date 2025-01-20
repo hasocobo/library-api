@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAPI.Application.Repositories;
 
-public class RepositoryBase<T> : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
     private readonly LibraryContext _libraryContext;
 
-    public RepositoryBase(LibraryContext libraryContext)
+    protected RepositoryBase(LibraryContext libraryContext)
     {
         _libraryContext = libraryContext;
     }
