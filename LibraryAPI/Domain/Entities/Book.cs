@@ -13,5 +13,8 @@ public class Book
     public int PublishYear { get; set; }
 
     public Guid AuthorId { get; set; }
+    public Author? Author { get; set; }
+    
     public Guid GenreId { get; set; }
+    public Genre? Genre { get; set; }
 }

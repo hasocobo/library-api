@@ -12,5 +12,6 @@ public class Author
     
     public DateTime? DateOfDeath { get; set; }
     
-    public Guid? UserId { get; set; }
+    public Guid? ApplicationUserId { get; set; }
+    public ApplicationUser? User { get; set; }
 }

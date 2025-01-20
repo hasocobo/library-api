@@ -10,4 +10,5 @@ public class Genre
     public string Name { get; set; } = string.Empty;
     
     public Guid SubGenreId { get; set; }
+    public Genre? SubGenre { get; set; }
 }
