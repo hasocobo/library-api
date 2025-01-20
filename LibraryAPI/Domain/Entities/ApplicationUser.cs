@@ -15,4 +15,7 @@ public class ApplicationUser : IdentityUser
     
     public DateTime? DateOfBirth { get; set; }
     
+    public ICollection<BorrowedBook> BorrowedBooks { get; set; } = new HashSet<BorrowedBook>();
+    public Author? Author { get; set; }
+    
 }

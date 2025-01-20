@@ -17,4 +17,6 @@ public class Book
     
     public Guid GenreId { get; set; }
     public Genre? Genre { get; set; }
+    
+    public ICollection<BorrowedBook>? BorrowedBooks { get; set; }
 }

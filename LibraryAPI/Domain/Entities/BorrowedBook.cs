@@ -1,4 +1,6 @@
-﻿namespace LibraryAPI.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LibraryAPI.Domain.Entities;
 
 public class BorrowedBook
 {
@@ -11,8 +13,8 @@ public class BorrowedBook
     public DateTime ReturnedDate { get; set; }
 
     public bool IsReturned { get; set; } = false;
-        
-    public Guid BorrowerId { get; set; }
+    [MaxLength(128)]
+    public string BorrowerId { get; set; } = Guid.Empty.ToString();
     public ApplicationUser? Borrower { get; set; }
     
     public Guid BookId { get; set; }
