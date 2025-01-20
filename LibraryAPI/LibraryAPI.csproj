@@ -14,12 +14,14 @@
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
       <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Application\Services\" />
       <Folder Include="Domain\DataTransferObjects\" />
-      <Folder Include="Domain\Exceptions\" />
       <Folder Include="Presentation\Controllers\" />
     </ItemGroup>
 
