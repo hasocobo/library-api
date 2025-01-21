@@ -8,13 +8,15 @@ public class ServiceManager : IServiceManager
     private readonly IAuthorService _authorService;
     private readonly IGenreService _genreService;
     private readonly IBorrowedBookService _borrowedBookService;
+    private readonly IAuthService _authService;
 
     public ServiceManager(IBookService bookService, IAuthorService authorService, IGenreService genreService,
-        IBorrowedBookService borrowedBookService)
+        IBorrowedBookService borrowedBookService, IAuthService authService)
     {
         _bookService = bookService;
         _authorService = authorService;
         _genreService = genreService;
+        _authService = authService;
         _borrowedBookService = borrowedBookService;
     }
     
@@ -22,4 +24,5 @@ public class ServiceManager : IServiceManager
     public IAuthorService AuthorService => _authorService;
     public IGenreService GenreService => _genreService;
     public IBorrowedBookService BorrowedBookService => _borrowedBookService;
+    public IAuthService AuthService => _authService;
 }

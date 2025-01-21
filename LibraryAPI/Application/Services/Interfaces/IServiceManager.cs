@@ -6,4 +6,5 @@ public interface IServiceManager
     IBookService BookService { get; }
     IBorrowedBookService BorrowedBookService { get; }
     IAuthorService AuthorService { get; }
+    IAuthService AuthService { get; }
 }
