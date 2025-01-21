@@ -1,5 +1,7 @@
-﻿using LibraryAPI.Application.Services.Interfaces;
+﻿using System.Security.Claims;
+using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Users;
+using LibraryAPI.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -21,22 +23,22 @@ public class AuthController : ControllerBase
         var registeredUser = await _serviceManager.AuthService.RegisterUserAsync(userRegistrationDto);
         return Ok(registeredUser);
     }
-    
+
     [HttpGet("users/{id}")]
     public async Task<ActionResult<UserDetails>> GetUserById(string id)
     {
         var userToReturn = await _serviceManager.AuthService.GetUserByIdAsync(id);
         return Ok(userToReturn);
     }
-    
+
     [HttpGet("users")]
     public async Task<ActionResult<IEnumerable<UserDetails>>> GetUsers()
     {
         var usersToReturn = await _serviceManager.AuthService.GetUsersAsync();
-        
+
         return Ok(usersToReturn);
     }
-    
+
     [HttpPost("login")]
     public async Task<ActionResult> Authenticate([FromBody] UserAuthenticationDto userAuthenticationDto)
     {
@@ -46,7 +48,16 @@ public class AuthController : ControllerBase
         }
 
         var jwtToken = _serviceManager.AuthService.CreateTokenAsync();
-        
+
         return Ok(jwtToken);
+    }
+
+    [HttpGet("/me")]
+    public async Task<ActionResult<UserDetails>> GetCurrentUserInfo()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _serviceManager.AuthService.GetUserByIdAsync(userId!);
+
+        return Ok(user);
     }
 }
