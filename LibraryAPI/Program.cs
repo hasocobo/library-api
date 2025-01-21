@@ -20,7 +20,7 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEntityRepositories();
-
+builder.Services.AddEntityServices();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

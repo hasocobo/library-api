@@ -3,7 +3,7 @@ using LibraryAPI.Persistence.Infrastructure;
 
 namespace LibraryAPI.Application.Repositories;
 
-public class RepositoryManager
+public class RepositoryManager : IRepositoryManager
 {
     private readonly LibraryContext _libraryContext;
     private readonly IGenreRepository _genreRepository;
@@ -24,9 +24,9 @@ public class RepositoryManager
     
     public async Task SaveAsync() => await _libraryContext.SaveChangesAsync();
     
-    public IGenreRepository GenreRepository() => _genreRepository;
-    public IBookRepository BookRepository() => _bookRepository;
-    public IAuthorRepository AuthorRepository() => _authorRepository;
-    public IBorrowedBookRepository BorrowedBookRepository() => _borrowedBookRepository;
+    public IGenreRepository GenreRepository => _genreRepository;
+    public IBookRepository BookRepository => _bookRepository;
+    public IAuthorRepository AuthorRepository => _authorRepository;
+    public IBorrowedBookRepository BorrowedBookRepository => _borrowedBookRepository;
     
 }
