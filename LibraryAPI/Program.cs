@@ -33,7 +33,6 @@ builder.Services.ConfigureCors();
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-
 app.ConfigureExceptionHandler(logger);
 
 if (app.Environment.IsProduction())

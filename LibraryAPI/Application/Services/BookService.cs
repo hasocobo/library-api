@@ -40,10 +40,41 @@ public class BookService : IBookService
         return bookToReturn;
     }
 
-    public async Task<IEnumerable<BookDetailsDto>> GetAllBooksAsync()
+    public async Task<IEnumerable<BookDetailsDto>> GetBooksAsync()
     {
-        _logger.LogInformation("Retrieving all books");
+        _logger.LogInformation("Retrieving books");
         var books = (await _repositoryManager.BookRepository.GetBooksAsync()) as List<Book>;
+
+        if (books == null)
+        {
+            _logger.LogInformation("No books found");
+            return Array.Empty<BookDetailsDto>();
+        }
+
+        _logger.LogInformation("Returning book details");
+        var booksToReturn = books.Select(b => b.ToDetailsDto());
+        return booksToReturn;
+    }
+    public async Task<IEnumerable<BookDetailsDto>> GetBooksByAuthorIdAsync(Guid authorId)
+    {
+        _logger.LogInformation($"Retrieving books for author with ID: {authorId}");
+        var books = (await _repositoryManager.BookRepository.GetBooksByAuthorIdAsync(authorId)) as List<Book>;
+
+        if (books == null)
+        {
+            _logger.LogInformation("No books found");
+            return Array.Empty<BookDetailsDto>();
+        }
+
+        _logger.LogInformation("Returning book details");
+        var booksToReturn = books.Select(b => b.ToDetailsDto());
+        return booksToReturn;
+    }
+    
+    public async Task<IEnumerable<BookDetailsDto>> GetBooksByGenreIdAsync(Guid genreId)
+    {
+        _logger.LogInformation($"Retrieving books by genre with ID: {genreId}");
+        var books = (await _repositoryManager.BookRepository.GetBooksByGenreIdAsync(genreId)) as List<Book>;
 
         if (books == null)
         {
