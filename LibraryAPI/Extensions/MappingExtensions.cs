@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects.Authors;
 using LibraryAPI.Domain.DataTransferObjects.Books;
+using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
 
 namespace LibraryAPI.Extensions;
@@ -26,6 +27,16 @@ public static class MappingExtensions
             FullName = $"{author.FirstName} {author.LastName}",
             DateOfBirth = author.DateOfBirth,
             DateOfDeath = author.DateOfDeath,
+        };
+    }
+
+    public static GenreDetailsDto ToDetailsDto(this Genre genre)
+    {
+        return new GenreDetailsDto
+        {
+            Id = genre.Id,
+            Name = genre.Name,
+            ParentGenreId = genre.ParentGenreId
         };
     }
 }

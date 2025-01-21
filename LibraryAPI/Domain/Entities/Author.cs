@@ -4,7 +4,7 @@ namespace LibraryAPI.Domain.Entities;
 
 public class Author
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     
     [MaxLength(50)]
     public string FirstName { get; set; } = string.Empty;

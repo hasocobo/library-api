@@ -4,7 +4,7 @@ namespace LibraryAPI.Domain.Entities;
 
 public class BorrowedBook
 {
-    public Guid BorrowedBookId { get; set; }
+    public Guid BorrowedBookId { get; init; }
     
     public DateTime BorrowedDate { get; set; }
     

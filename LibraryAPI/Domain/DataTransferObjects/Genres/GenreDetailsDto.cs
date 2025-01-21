@@ -10,5 +10,5 @@ public record GenreDetailsDto
     [MaxLength(20)]
     public string Name { get; init; } = string.Empty;
     
-    public Guid ParentGenreId { get; init; }
+    public Guid? ParentGenreId { get; init; }
 }

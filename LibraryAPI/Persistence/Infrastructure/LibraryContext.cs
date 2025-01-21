@@ -17,13 +17,6 @@ public class LibraryContext : IdentityDbContext<ApplicationUser>
     public DbSet<Genre> Genres { get; set; }
     public DbSet<BorrowedBook> BorrowedBooks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-
-        optionsBuilder.LogTo(message => Debug.WriteLine(message));
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
