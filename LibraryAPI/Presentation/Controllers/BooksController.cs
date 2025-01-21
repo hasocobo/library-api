@@ -24,6 +24,34 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    [HttpGet("deleted-books")]
+    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetDeletedBooks()
+    {
+        var books = await _serviceManager.BookService.GetDeletedBooksAsync();
+        return Ok(books);
+    }
+
+    [HttpGet("deleted-books/{deletedBookId}")]
+    public async Task<ActionResult<BookDetailsDto>> GetDeletedBookById(Guid deletedBookId)
+    {
+        var deletedBook = await _serviceManager.BookService.GetDeletedBookByIdAsync(deletedBookId);
+        return Ok(deletedBook);
+    }
+
+    [HttpDelete("deleted-books/{deletedBookId}")]
+    public async Task<ActionResult<BookDetailsDto>> RestoreDeletedBookById(Guid deletedBookId)
+    {
+        await _serviceManager.BookService.RestoreDeletedBookByIdAsync(deletedBookId);
+        return NoContent();
+    }
+
+    [HttpDelete("deleted-books")]
+    public async Task<ActionResult<BookDetailsDto>> RestoreDeletedBooks()
+    {
+        await _serviceManager.BookService.RestoreDeletedBooksAsync();
+        return NoContent();
+    }
+    
     [HttpGet("books/{bookId:guid}")]
     public async Task<ActionResult<BookDetailsDto>> GetBookById(Guid bookId)
     {
