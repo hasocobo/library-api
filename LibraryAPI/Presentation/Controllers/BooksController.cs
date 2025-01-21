@@ -55,16 +55,16 @@ public class BooksController : ControllerBase
     }
 
     [HttpPut("books/{bookId:guid}")]
-    public async Task<ActionResult> UpdateBook(Guid id, [FromBody] BookUpdateDto bookToUpdate)
+    public async Task<ActionResult> UpdateBook(Guid bookId, [FromBody] BookUpdateDto bookToUpdate)
     {
-        await _serviceManager.BookService.UpdateBookAsync(id, bookToUpdate);
+        await _serviceManager.BookService.UpdateBookAsync(bookId, bookToUpdate);
         return Ok();
     }
     
     [HttpDelete("books/{bookId:guid}")]
-    public async Task<ActionResult> DeleteBook(Guid id)
+    public async Task<ActionResult> DeleteBook(Guid bookId)
     {
-        await _serviceManager.BookService.DeleteBookByIdAsync(id);
+        await _serviceManager.BookService.DeleteBookByIdAsync(bookId);
         return NoContent();
     }
 }

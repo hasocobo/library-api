@@ -8,6 +8,7 @@ public interface IBookService
 {
     Task<BookDetailsDto> CreateBookAsync(BookCreationDto bookCreateDto, Guid authorId, Guid genreId);
     Task<IEnumerable<BookDetailsDto>> GetBooksAsync();
+    Task<IEnumerable<BookDetailsDto>> GetDeletedBooksAsync();
     Task<IEnumerable<BookDetailsDto>> GetBooksByAuthorIdAsync(Guid authorId);
     Task<IEnumerable<BookDetailsDto>> GetBooksByGenreIdAsync(Guid genreId);
     

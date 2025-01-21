@@ -15,6 +15,7 @@ public static class MappingExtensions
             Id = book.Id,
             Title = book.Title,
             PageCount = book.PageCount,
+            PublishYear = book.PublishYear,
         };
     }
 

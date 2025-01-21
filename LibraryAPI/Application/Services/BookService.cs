@@ -87,6 +87,14 @@ public class BookService : IBookService
         return booksToReturn;
     }
 
+    public async Task<IEnumerable<BookDetailsDto>> GetDeletedBooksAsync()
+    {
+        _logger.LogInformation("Retrieving deleted books");
+        var books = await _repositoryManager.BookRepository.GetDeletedBooksAsync();
+        
+        return books.Select(b => b.ToDetailsDto());
+    }
+
     public async Task<BookDetailsDto> GetBookByIdAsync(Guid bookId)
     {
         _logger.LogInformation($"Retrieving book with ID: {bookId}");
@@ -132,6 +140,34 @@ public class BookService : IBookService
 
         bookToDelete.IsDeleted = true;
         _repositoryManager.BookRepository.UpdateBook(bookToDelete);
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task RestoreDeletedBookById(Guid bookId)
+    {
+        _logger.LogInformation($"Restoring deleted book with ID: {bookId}");
+        var bookToRestore = await _repositoryManager.BookRepository.GetDeletedBookByIdAsync(bookId);
+        if (bookToRestore == null) 
+            throw new NotFoundException("Book", bookId);
+        
+        bookToRestore.IsDeleted = false;
+        _repositoryManager.BookRepository.UpdateBook(bookToRestore);
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task RestoreDeletedBooks()
+    {
+        _logger.LogInformation("Restoring deleted books");
+        var books = await _repositoryManager.BookRepository.GetDeletedBooksAsync() as List<Book>;
+        
+        if (books == null)
+            return;
+
+        foreach (var book in books)
+        {
+            book.IsDeleted = false;
+        }
+        
         await _repositoryManager.SaveAsync();
     }
 }

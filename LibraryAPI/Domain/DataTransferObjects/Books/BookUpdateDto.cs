@@ -4,7 +4,6 @@ namespace LibraryAPI.Domain.DataTransferObjects.Books;
 
 public record BookUpdateDto
 {
-    [Required]
     [MaxLength(50)]
     public string? Title { get; init; }
     
