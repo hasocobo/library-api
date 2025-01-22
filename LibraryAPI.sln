@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryAPI", "LibraryAPI\LibraryAPI.csproj", "{F24C0A8A-545C-46F4-8CBC-154C611990A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelExportService", "ExcelExportService\ExcelExportService.csproj", "{3832BD31-35EF-4238-BF55-3BAA314062F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{F24C0A8A-545C-46F4-8CBC-154C611990A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F24C0A8A-545C-46F4-8CBC-154C611990A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F24C0A8A-545C-46F4-8CBC-154C611990A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3832BD31-35EF-4238-BF55-3BAA314062F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3832BD31-35EF-4238-BF55-3BAA314062F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3832BD31-35EF-4238-BF55-3BAA314062F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3832BD31-35EF-4238-BF55-3BAA314062F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
