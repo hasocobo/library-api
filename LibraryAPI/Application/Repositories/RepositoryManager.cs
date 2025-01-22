@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Persistence.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LibraryAPI.Application.Repositories;
 
@@ -23,6 +24,8 @@ public class RepositoryManager : IRepositoryManager
     }
     
     public async Task SaveAsync() => await _libraryContext.SaveChangesAsync();
+    public async Task<IDbContextTransaction> BeginTransactionAsync() =>
+        await _libraryContext.Database.BeginTransactionAsync();
     
     public IGenreRepository GenreRepository => _genreRepository;
     public IBookRepository BookRepository => _bookRepository;

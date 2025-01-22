@@ -12,6 +12,8 @@ public interface IBookRepository
     Task<IEnumerable<Book>> GetBooksByAuthorIdAsync(Guid id);
     Task<IEnumerable<Book>> GetBooksByGenreIdAsync(Guid id);
     
+    Task<bool> CheckIfBookIsAvailableAsync(Guid bookId);
+    
     void CreateBook(Book book);
     void UpdateBook(Book book);
     void DeleteBook(Book book);

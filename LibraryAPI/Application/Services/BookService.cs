@@ -29,6 +29,7 @@ public class BookService : IBookService
             GenreId = genreId,
             PageCount = bookCreateDto.PageCount,
             PublishYear = bookCreateDto.PublishYear,
+            Quantity = bookCreateDto.Quantity,
         };
 
         _repositoryManager.BookRepository.CreateBook(book);
@@ -136,6 +137,9 @@ public class BookService : IBookService
 
         if (bookUpdateDto.PageCount != null)
             bookToUpdate.PageCount = (int)bookUpdateDto.PageCount;
+        
+        if (bookUpdateDto.Quantity != null)
+            bookToUpdate.Quantity = (int)bookUpdateDto.Quantity;
 
         _repositoryManager.BookRepository.UpdateBook(bookToUpdate);
         await _repositoryManager.SaveAsync();

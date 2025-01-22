@@ -11,10 +11,15 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
     {
     }
 
+    public async Task<bool> CheckIfBorrowedBookExists(Guid borrowedBookId)
+    {
+        return await FindByCondition(borrowedBook => borrowedBook.Id.Equals(borrowedBookId)).AnyAsync();
+    }
+
     public async Task<IEnumerable<BorrowedBook>> GetBorrowedBooks()
     {
         var query = FindAll();
-        
+
         var borrowedBooks = await query.ToListAsync();
 
         return borrowedBooks;
@@ -22,19 +27,25 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
 
     public async Task<BorrowedBook?> GetBorrowedBookById(Guid id)
     {
-        var query = FindByCondition(bBook => bBook.BorrowedBookId.Equals(id));
-        
-        var borrowedBook = await query.FirstOrDefaultAsync();
-        
+        var query = FindByCondition(bBook => bBook.Id.Equals(id));
+
+        var borrowedBook = await query
+            .Include(bb => bb.Book)
+            .ThenInclude(b => b!.Author)
+            .FirstOrDefaultAsync();
+
         return borrowedBook;
     }
 
-    public async Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(Guid userId)
+    public async Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(string userId)
     {
-        var query = FindByCondition(bBook => bBook.BorrowedBookId.Equals(userId));
+        var query = FindByCondition(bBook => bBook.Id.Equals(userId));
         
-        var borrowedBooks = await query.ToListAsync();
-        
+        var borrowedBooks = await query
+            .Include(bb => bb.Book)
+            .ThenInclude(b => b!.Author)
+            .ToListAsync();
+
         return borrowedBooks;
     }
 

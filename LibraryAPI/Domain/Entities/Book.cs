@@ -19,6 +19,8 @@ public class Book
     
     public Guid GenreId { get; set; }
     public Genre? Genre { get; set; }
+
+    public int Quantity { get; set; } = 1;
     
     public bool IsDeleted { get; set; } = false;
     public ICollection<BorrowedBook>? BorrowedBooks { get; set; }

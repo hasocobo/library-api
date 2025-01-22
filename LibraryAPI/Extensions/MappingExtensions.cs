@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects.Authors;
 using LibraryAPI.Domain.DataTransferObjects.Books;
+using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
 
@@ -16,6 +17,7 @@ public static class MappingExtensions
             Title = book.Title,
             PageCount = book.PageCount,
             PublishYear = book.PublishYear,
+            Quantity = book.Quantity,
         };
     }
 
@@ -38,6 +40,22 @@ public static class MappingExtensions
             Id = genre.Id,
             Name = genre.Name,
             ParentGenreId = genre.ParentGenreId
+        };
+    }
+
+    public static BorrowedBookDetailsDto ToDetailsDto(this BorrowedBook borrowedBook)
+    {
+        return new BorrowedBookDetailsDto
+        {
+            Id = borrowedBook.Id,
+            BookId = borrowedBook.BookId,
+            BorrowerId = borrowedBook.BorrowerId,
+            BookName = borrowedBook.Book!.Title,
+            AuthorName = $"{borrowedBook.Book!.Author!.FirstName} ${borrowedBook.Book.Author.LastName}",
+            IsReturned = borrowedBook.IsReturned,
+            BorrowedDate = borrowedBook.BorrowedDate,
+            ReturnedDate = borrowedBook.ReturnedDate,
+            DueDate = borrowedBook.DueDate
         };
     }
 }

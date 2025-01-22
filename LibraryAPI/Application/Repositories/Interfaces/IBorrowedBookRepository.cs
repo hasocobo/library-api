@@ -4,11 +4,13 @@ namespace LibraryAPI.Application.Repositories.Interfaces;
 
 public interface IBorrowedBookRepository
 {
+    Task<bool> CheckIfBorrowedBookExists(Guid id);
     Task<IEnumerable<BorrowedBook>> GetBorrowedBooks();
     Task<BorrowedBook?> GetBorrowedBookById(Guid id);
-    Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(Guid userId);
+    Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(string userId);
     
     void CreateBorrowedBook(BorrowedBook borrowedBook);
+    
     void UpdateBorrowedBook(BorrowedBook borrowedBook);
     void DeleteBorrowedBook(BorrowedBook borrowedBook);
 }

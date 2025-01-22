@@ -1,6 +1,141 @@
-﻿namespace LibraryAPI.Application.Services.Interfaces;
+﻿using LibraryAPI.Application.Repositories.Interfaces;
+using LibraryAPI.Application.Services.Interfaces;
+using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
+using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Extensions;
+
+namespace LibraryAPI.Application.Services;
 
 public class BorrowedBookService : IBorrowedBookService
 {
-    
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILogger<BorrowedBookService> _logger;
+
+    public BorrowedBookService(IRepositoryManager repositoryManager, ILogger<BorrowedBookService> logger)
+    {
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+    }
+
+    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooks()
+    {
+        _logger.LogInformation("Retrieving all borrowed books");
+        var borrowedBooks = await _repositoryManager.BorrowedBookRepository.GetBorrowedBooks() as List<BorrowedBook>;
+
+        if (borrowedBooks == null)
+        {
+            _logger.LogInformation("No borrowed books found");
+            return Array.Empty<BorrowedBookDetailsDto>();
+        }
+
+        var borrowedBooksToReturn =
+            borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
+
+        return borrowedBooksToReturn;
+    }
+
+    public async Task<BorrowedBookDetailsDto> GetBorrowedBookById(Guid borrowedBookId)
+    {
+        _logger.LogInformation($"Retrieving borrowed book with ID: {borrowedBookId}");
+        var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
+        if (borrowedBook == null)
+            throw new NotFoundException("Borrowed Book", borrowedBookId);
+
+        return borrowedBook.ToDetailsDto();
+    }
+
+    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserId(string userId)
+    {
+        _logger.LogInformation($"Retrieving borrowed books by user with ID: {userId}");
+        var borrowedBooks =
+            await _repositoryManager.BorrowedBookRepository.GetBorrowedBooksByUserId(userId);
+
+        return borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
+    }
+
+    public async Task<BorrowedBookDetailsDto> BorrowABook(BorrowedBookCreationDto borrowedBookCreationDto,
+        string userId)
+    {
+        _logger.LogInformation($"User: {userId}, borrows the book: {borrowedBookCreationDto.BookId}");
+
+        if (!await _repositoryManager.BookRepository.CheckIfBookIsAvailableAsync(borrowedBookCreationDto.BookId))
+            throw new NotFoundException("Book", borrowedBookCreationDto.BookId);
+
+        await using var transaction = await _repositoryManager.BeginTransactionAsync();
+        try
+        {
+            var borrowedBook = new BorrowedBook
+            {
+                BookId = borrowedBookCreationDto.BookId,
+                BorrowerId = userId,
+                BorrowedDate = DateTime.Today,
+                DueDate = borrowedBookCreationDto.DueDate
+            };
+            _repositoryManager.BorrowedBookRepository.CreateBorrowedBook(borrowedBook);
+            await _repositoryManager.SaveAsync();
+
+            var book = await
+                _repositoryManager.BookRepository.GetBookByIdAsync(borrowedBookCreationDto.BookId);
+
+            book!.PageCount = book.PageCount - 1;
+
+            _repositoryManager.BookRepository.UpdateBook(book);
+            await _repositoryManager.SaveAsync();
+
+            await transaction.CommitAsync();
+            return borrowedBook.ToDetailsDto();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "An error occured during borrowing the book");
+            throw;
+        }
+    }
+
+    public async Task ReturnBorrowedBook(Guid borrowedBookId, string userId)
+    {
+        _logger.LogInformation($"User returns borrowed book with ID: {borrowedBookId}");
+
+        var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
+        if (borrowedBook == null)
+            throw new NotFoundException("Borrowed Book", borrowedBookId);
+
+        await using var transaction = await _repositoryManager.BeginTransactionAsync();
+        try
+        {
+            borrowedBook.ReturnedDate = DateTime.Today;
+            borrowedBook.IsReturned = true;
+
+            _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+            await _repositoryManager.SaveAsync();
+
+            var book = await _repositoryManager.BookRepository.GetBookByIdAsync(borrowedBook.BookId);
+            book!.Quantity = book.Quantity + 1;
+            _repositoryManager.BookRepository.UpdateBook(book);
+            await _repositoryManager.SaveAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "An error occured during returning the book");
+            throw;
+        }
+    }
+
+    public async Task UpdateBorrowedBook(Guid borrowedBookId, BorrowedBookUpdateDto borrowedBookUpdateDto)
+    {
+        _logger.LogInformation($"Updating borrowed book with ID: {borrowedBookId}");
+        var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
+        if (borrowedBook == null)
+            throw new NotFoundException("Borrowed Book", borrowedBookId);
+
+        if (borrowedBookUpdateDto.DueDate != null) borrowedBook.DueDate = borrowedBookUpdateDto.DueDate;
+        if (borrowedBookUpdateDto.IsReturned != null) borrowedBook.IsReturned = (bool)borrowedBookUpdateDto.IsReturned;
+        
+        _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+        await _repositoryManager.SaveAsync();
+    }
 }

@@ -1,4 +1,6 @@
-﻿namespace LibraryAPI.Application.Repositories.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+
+namespace LibraryAPI.Application.Repositories.Interfaces;
 
 public interface IRepositoryManager
 {
@@ -8,4 +10,5 @@ public interface IRepositoryManager
     IBorrowedBookRepository BorrowedBookRepository { get; }
     
     Task SaveAsync();
+    Task<IDbContextTransaction> BeginTransactionAsync();
 }

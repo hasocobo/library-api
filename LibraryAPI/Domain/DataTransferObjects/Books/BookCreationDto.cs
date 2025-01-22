@@ -11,6 +11,7 @@ public record BookCreationDto
     public int PublishYear { get; set; }
     
     public int PageCount { get; set; }
-    
-    
+
+    public int Quantity { get; set; } = 1;
+
 }

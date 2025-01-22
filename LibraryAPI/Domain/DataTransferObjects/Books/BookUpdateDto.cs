@@ -12,4 +12,6 @@ public record BookUpdateDto
     public Guid? GenreId { get; init; }
     
     public int? PageCount { get; init; }
+    
+    public int? Quantity { get; init; }
 }

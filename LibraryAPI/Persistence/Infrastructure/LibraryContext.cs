@@ -49,7 +49,7 @@ public class LibraryContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<BorrowedBook>(entity =>
         {
-            entity.HasKey(borrowedBook => borrowedBook.BorrowedBookId);
+            entity.HasKey(borrowedBook => borrowedBook.Id);
 
             entity
                 .HasOne(borrowedBook => borrowedBook.Book)

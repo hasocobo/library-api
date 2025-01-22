@@ -8,4 +8,6 @@ public record BookDetailsDto
     public Guid AuthorId { get; init; }
     public int PublishYear { get; init; }
     public int PageCount { get; init; }
+    
+    public int Quantity { get; init; }
 };
