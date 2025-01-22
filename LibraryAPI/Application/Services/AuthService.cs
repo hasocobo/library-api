@@ -85,7 +85,7 @@ public class AuthService : IAuthService
             _logger.LogInformation($"User registration successful.");
             if (userRegistrationDto.Roles != null)
             {
-                var normalizedRoles = userRegistrationDto.Roles.Select(role => role.ToUpper()).ToList();
+                var normalizedRoles = userRegistrationDto.Roles.Select(role => role.ToUpperInvariant()).ToList();
                 await _userManager.AddToRolesAsync(newUser, normalizedRoles);
                 _logger.LogInformation($"Registering roles to user is successful.");
             }
@@ -171,7 +171,7 @@ public class AuthService : IAuthService
         {
             var currentRoles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            var normalizedRoles = userUpdateDto.Roles.Select(role => role.ToUpper()).ToList();
+            var normalizedRoles = userUpdateDto.Roles.Select(role => role.ToUpperInvariant()).ToList();
             await _userManager.AddToRolesAsync(user, normalizedRoles);
             _logger.LogInformation($"Registering roles to user is successful.");
         }
