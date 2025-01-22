@@ -21,6 +21,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<UserDetails>> RegisterUser([FromBody] UserRegistrationDto userRegistrationDto)
     {
         var registeredUser = await _serviceManager.AuthService.RegisterUserAsync(userRegistrationDto);
+        // if roles.contains author -> AuthorService.CreateAuthor
         return Ok(registeredUser);
     }
 

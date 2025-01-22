@@ -51,11 +51,12 @@ public static class MappingExtensions
             Id = borrowedBook.Id,
             BookId = borrowedBook.BookId,
             BorrowerId = borrowedBook.BorrowerId,
+            BorrowerName = $"{borrowedBook.Borrower?.FirstName} {borrowedBook.Borrower?.LastName}",
             BookName = borrowedBook.Book?.Title,
             AuthorName = $"{borrowedBook.Book?.Author?.FirstName} {borrowedBook.Book?.Author?.LastName}",
             IsReturned = borrowedBook.IsReturned,
-            BorrowedDate = borrowedBook.BorrowedDate,
-            ReturnedDate = borrowedBook.ReturnedDate,
+            BorrowingDate = borrowedBook.BorrowedDate,
+            ReturningDate = borrowedBook.ReturnedDate,
             DueDate = borrowedBook.DueDate,
             PenaltyPrice = borrowedBook.CalculatePenaltyPrice()
         };

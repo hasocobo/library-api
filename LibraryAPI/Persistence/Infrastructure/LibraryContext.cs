@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using LibraryAPI.Domain.Entities;
+﻿using LibraryAPI.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace LibraryAPI.Persistence.Infrastructure;
 

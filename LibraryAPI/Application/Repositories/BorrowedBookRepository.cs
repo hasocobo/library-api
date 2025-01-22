@@ -21,6 +21,7 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
         var query = FindAll();
 
         var borrowedBooks = await query
+            .Include(b => b.Borrower)
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
             .ToListAsync();

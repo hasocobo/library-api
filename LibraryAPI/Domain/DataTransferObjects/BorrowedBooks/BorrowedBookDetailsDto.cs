@@ -7,9 +7,10 @@ public record BorrowedBookDetailsDto
     public string? BookName { get; init; } = string.Empty;
     public string? AuthorName { get; init; } = string.Empty;
     public required string BorrowerId { get; init; } 
-    public DateTime BorrowedDate { get; init; }
+    public string? BorrowerName { get; init; } = string.Empty;
+    public DateTime BorrowingDate { get; init; } = DateTime.UtcNow;
     public bool? IsReturned { get; init; }
-    public DateTime? ReturnedDate { get; init; }
+    public DateTime? ReturningDate { get; init; }
     public DateTime? DueDate { get; init; }
     
     public int PenaltyPrice { get; init; }
