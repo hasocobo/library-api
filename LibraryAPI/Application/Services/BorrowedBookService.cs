@@ -18,9 +18,8 @@ public class BorrowedBookService : IBorrowedBookService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooks()
+    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksAsync()
     {
-        _logger.LogInformation("Retrieving all borrowed books");
         var borrowedBooks = await _repositoryManager.BorrowedBookRepository.GetBorrowedBooks() as List<BorrowedBook>;
 
         if (borrowedBooks == null)
@@ -28,6 +27,7 @@ public class BorrowedBookService : IBorrowedBookService
             _logger.LogInformation("No borrowed books found");
             return Array.Empty<BorrowedBookDetailsDto>();
         }
+        _logger.LogInformation("Retrieving all borrowed books");
 
         var borrowedBooksToReturn =
             borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
@@ -35,7 +35,7 @@ public class BorrowedBookService : IBorrowedBookService
         return borrowedBooksToReturn;
     }
 
-    public async Task<BorrowedBookDetailsDto> GetBorrowedBookById(Guid borrowedBookId)
+    public async Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId)
     {
         _logger.LogInformation($"Retrieving borrowed book with ID: {borrowedBookId}");
         var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
@@ -45,7 +45,7 @@ public class BorrowedBookService : IBorrowedBookService
         return borrowedBook.ToDetailsDto();
     }
 
-    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserId(string userId)
+    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId)
     {
         _logger.LogInformation($"Retrieving borrowed books by user with ID: {userId}");
         var borrowedBooks =
@@ -54,7 +54,7 @@ public class BorrowedBookService : IBorrowedBookService
         return borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
     }
 
-    public async Task<BorrowedBookDetailsDto> BorrowABook(BorrowedBookCreationDto borrowedBookCreationDto,
+    public async Task<BorrowedBookDetailsDto> BorrowABookAsync(BorrowedBookCreationDto borrowedBookCreationDto,
         string userId)
     {
         _logger.LogInformation($"User: {userId}, borrows the book: {borrowedBookCreationDto.BookId}");
@@ -78,7 +78,7 @@ public class BorrowedBookService : IBorrowedBookService
             var book = await
                 _repositoryManager.BookRepository.GetBookByIdAsync(borrowedBookCreationDto.BookId);
 
-            book!.PageCount = book.PageCount - 1;
+            book!.Quantity = book.Quantity - 1;
 
             _repositoryManager.BookRepository.UpdateBook(book);
             await _repositoryManager.SaveAsync();
@@ -94,7 +94,7 @@ public class BorrowedBookService : IBorrowedBookService
         }
     }
 
-    public async Task ReturnBorrowedBook(Guid borrowedBookId, string userId)
+    public async Task ReturnABorrowedBookAsync(Guid borrowedBookId, string userId)
     {
         _logger.LogInformation($"User returns borrowed book with ID: {borrowedBookId}");
 
@@ -125,7 +125,7 @@ public class BorrowedBookService : IBorrowedBookService
         }
     }
 
-    public async Task UpdateBorrowedBook(Guid borrowedBookId, BorrowedBookUpdateDto borrowedBookUpdateDto)
+    public async Task UpdateABorrowedBookAsync(Guid borrowedBookId, BorrowedBookUpdateDto borrowedBookUpdateDto)
     {
         _logger.LogInformation($"Updating borrowed book with ID: {borrowedBookId}");
         var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);

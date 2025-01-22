@@ -5,13 +5,13 @@ namespace LibraryAPI.Application.Services.Interfaces;
 
 public interface IBorrowedBookService
 {
-    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooks();
-    Task<BorrowedBookDetailsDto> GetBorrowedBookById(Guid borrowedBookId);
+    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksAsync();
+    Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId);
     
-    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserId(string userId);
+    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId);
 
-    Task<BorrowedBookDetailsDto> BorrowABook(BorrowedBookCreationDto borrowedBookCreationDto, string userId);
-    Task ReturnBorrowedBook(Guid borrowedBookId, string userId);
+    Task<BorrowedBookDetailsDto> BorrowABookAsync(BorrowedBookCreationDto borrowedBookCreationDto, string userId);
+    Task ReturnABorrowedBookAsync(Guid borrowedBookId, string userId);
     
-    Task UpdateBorrowedBook(Guid borrowedBookId, BorrowedBookUpdateDto borrowedBookUpdateDto);
+    Task UpdateABorrowedBookAsync(Guid borrowedBookId, BorrowedBookUpdateDto borrowedBookUpdateDto);
 }
