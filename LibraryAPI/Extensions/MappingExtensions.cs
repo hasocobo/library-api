@@ -18,6 +18,7 @@ public static class MappingExtensions
             PageCount = book.PageCount,
             PublishYear = book.PublishYear,
             Quantity = book.Quantity,
+            AuthorName = book.Author?.FirstName + " " + book.Author?.LastName,
         };
     }
 
@@ -50,12 +51,13 @@ public static class MappingExtensions
             Id = borrowedBook.Id,
             BookId = borrowedBook.BookId,
             BorrowerId = borrowedBook.BorrowerId,
-            BookName = borrowedBook.Book!.Title,
-            AuthorName = $"{borrowedBook.Book!.Author!.FirstName} ${borrowedBook.Book.Author.LastName}",
+            BookName = borrowedBook.Book?.Title,
+            AuthorName = $"{borrowedBook.Book?.Author?.FirstName} {borrowedBook.Book?.Author?.LastName}",
             IsReturned = borrowedBook.IsReturned,
             BorrowedDate = borrowedBook.BorrowedDate,
             ReturnedDate = borrowedBook.ReturnedDate,
-            DueDate = borrowedBook.DueDate
+            DueDate = borrowedBook.DueDate,
+            PenaltyPrice = borrowedBook.CalculatePenaltyPrice()
         };
     }
 }

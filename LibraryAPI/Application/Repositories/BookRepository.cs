@@ -13,7 +13,8 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
 
     public async Task<IEnumerable<Book>> GetBooksAsync()
     {
-        var query = FindByCondition(book => book.IsDeleted == false);
+        var query = FindByCondition(book => book.IsDeleted == false)
+            .Include(book => book.Author);
 
         var books = await query.ToListAsync();
 
@@ -31,7 +32,8 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
 
     public async Task<Book?> GetBookByIdAsync(Guid bookId)
     {
-        var query = FindByCondition(book => book.Id.Equals(bookId) && book.IsDeleted == false);
+        var query = FindByCondition(book => book.Id.Equals(bookId) && book.IsDeleted == false)
+            .Include(book => book.Author);
 
         var book = await query.FirstOrDefaultAsync();
 

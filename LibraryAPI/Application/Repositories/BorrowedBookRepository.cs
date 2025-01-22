@@ -42,7 +42,7 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
 
     public async Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(string userId)
     {
-        var query = FindByCondition(bBook => bBook.Id.Equals(userId));
+        var query = FindByCondition(bBook => bBook.BorrowerId.Equals(userId));
 
         var borrowedBooks = await query
             .Include(bb => bb.Book)
