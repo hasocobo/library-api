@@ -3,6 +3,7 @@ using System;
 using LibraryAPI.Persistence.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryAPI.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    partial class LibraryContextModelSnapshot : ModelSnapshot
+    [Migration("20250122141304_SeedRoles")]
+    partial class SeedRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -255,21 +258,18 @@ namespace LibraryAPI.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "3d09660f-c1e2-4f45-878c-5d19adcfc44d",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "1894d025-0243-4892-b115-56c333fb9a2d",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "a84be136-d8b4-4cfe-aae3-70c30b620527",
                             Name = "Author",
                             NormalizedName = "AUTHOR"
                         });

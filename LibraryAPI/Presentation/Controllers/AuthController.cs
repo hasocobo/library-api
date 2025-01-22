@@ -53,6 +53,20 @@ public class AuthController : ControllerBase
         return Ok(jwtToken);
     }
 
+    [HttpDelete("users/{userId}")]
+    public async Task<ActionResult> DeleteUser(string userId)
+    {
+        await _serviceManager.AuthService.DeleteUserAsync(userId);
+        return NoContent();
+    }
+
+    [HttpPut("users/{userId}")]
+    public async Task<ActionResult> ChangeUserInformation(string userId, UserUpdateDto userUpdateDto)
+    {
+        await _serviceManager.AuthService.ChangeUserInformationAsync(userId, userUpdateDto);
+        return Ok();
+    }
+
     [HttpGet("/me")]
     public async Task<ActionResult<UserDetails>> GetCurrentUserInfo()
     {

@@ -10,5 +10,8 @@ public interface IAuthService
     Task<UserDetails> RegisterUserAsync(UserRegistrationDto userRegistrationDto);
     Task<string> CreateTokenAsync();
     Task<bool> ValidateUserAsync(UserAuthenticationDto userAuthenticationDto);
+    
+    Task ChangeUserInformationAsync(string userId, UserUpdateDto userUpdateDto);
+    Task DeleteUserAsync(string id);
 
 }

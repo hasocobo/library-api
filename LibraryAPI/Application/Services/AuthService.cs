@@ -35,7 +35,7 @@ public class AuthService : IAuthService
 
         if (user == null)
             throw new NotFoundException("User", Guid.Parse(userId));
-        
+
         _logger.LogInformation($"Returning user details");
         var userDetails = new UserDetails
         {
@@ -45,7 +45,7 @@ public class AuthService : IAuthService
             FirstName = user.FirstName,
             LastName = user.LastName,
         };
-        
+
         return userDetails;
     }
 
@@ -53,7 +53,7 @@ public class AuthService : IAuthService
     {
         _logger.LogInformation($"Getting all users");
         var users = await _userManager.Users.ToListAsync();
-        
+
         _logger.LogInformation($"Returning all {users.Count} users");
 
         var usersToReturn = users.Select(user => new UserDetails
@@ -64,7 +64,7 @@ public class AuthService : IAuthService
             FirstName = user.FirstName,
             LastName = user.LastName
         });
-        
+
         return usersToReturn;
     }
 
@@ -85,10 +85,10 @@ public class AuthService : IAuthService
             _logger.LogInformation($"User registration successful.");
             if (userRegistrationDto.Roles != null)
             {
+                var normalizedRoles = userRegistrationDto.Roles.Select(role => role.ToUpper()).ToList();
+                await _userManager.AddToRolesAsync(newUser, normalizedRoles);
                 _logger.LogInformation($"Registering roles to user is successful.");
-                await _userManager.AddToRolesAsync(newUser, userRegistrationDto.Roles);
             }
-            
         }
 
         var userDetails = new UserDetails
@@ -100,7 +100,7 @@ public class AuthService : IAuthService
             DateOfBirth = newUser.DateOfBirth,
             Username = newUser.UserName
         };
-        
+
         return userDetails;
     }
 
@@ -150,5 +150,43 @@ public class AuthService : IAuthService
         }
 
         return result;
+    }
+
+    public async Task ChangeUserInformationAsync(string userId, UserUpdateDto userUpdateDto)
+    {
+        _logger.LogInformation($"Changing user information of user with id: {userId}");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new NotFoundException("User", Guid.Parse(userId));
+
+        if (userUpdateDto.FirstName != null) user.FirstName = userUpdateDto.FirstName;
+        if (userUpdateDto.LastName != null) user.LastName = userUpdateDto.LastName;
+        if (userUpdateDto.Email != null && user.Email != null)
+            await _userManager.ChangeEmailAsync(user, user.Email, userUpdateDto.Email);
+
+        if (userUpdateDto.CurrentPassword != null && userUpdateDto.NewPassword != null)
+            await _userManager.ChangePasswordAsync(user, userUpdateDto.CurrentPassword, userUpdateDto.NewPassword);
+
+        if (userUpdateDto.Roles != null)
+        {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            var normalizedRoles = userUpdateDto.Roles.Select(role => role.ToUpper()).ToList();
+            await _userManager.AddToRolesAsync(user, normalizedRoles);
+            _logger.LogInformation($"Registering roles to user is successful.");
+        }
+
+        await _userManager.UpdateAsync(user);
+    }
+
+
+    public async Task DeleteUserAsync(string userId)
+    {
+        _logger.LogInformation($"Deleting user with id: {userId}");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new NotFoundException("User", Guid.Parse(userId));
+
+        await _userManager.DeleteAsync(user);
     }
 }
