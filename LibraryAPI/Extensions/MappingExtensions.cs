@@ -16,6 +16,8 @@ public static class MappingExtensions
             Id = book.Id,
             Title = book.Title,
             PageCount = book.PageCount,
+            GenreName = book.Genre?.Name,
+            ImageUrl = book.ImageUrl,
             PublishYear = book.PublishYear,
             Quantity = book.Quantity,
             AuthorName = book.Author?.FirstName + " " + book.Author?.LastName,

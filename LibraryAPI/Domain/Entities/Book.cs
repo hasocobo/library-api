@@ -21,6 +21,8 @@ public class Book
     public Genre? Genre { get; set; }
 
     public int Quantity { get; set; } = 1;
+    [MaxLength(100)]
+    public string? ImageUrl { get; set; }
     
     public bool IsDeleted { get; set; } = false;
     public ICollection<BorrowedBook>? BorrowedBooks { get; set; }

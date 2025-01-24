@@ -30,6 +30,7 @@ public class BookService : IBookService
             PageCount = bookCreateDto.PageCount,
             PublishYear = bookCreateDto.PublishYear,
             Quantity = bookCreateDto.Quantity,
+            ImageUrl = bookCreateDto.ImageUrl,
         };
 
         _repositoryManager.BookRepository.CreateBook(book);
@@ -140,6 +141,9 @@ public class BookService : IBookService
         
         if (bookUpdateDto.Quantity != null)
             bookToUpdate.Quantity = (int)bookUpdateDto.Quantity;
+        
+        if (bookUpdateDto.ImageUrl != null)
+            bookToUpdate.ImageUrl = bookUpdateDto.ImageUrl;
 
         _repositoryManager.BookRepository.UpdateBook(bookToUpdate);
         await _repositoryManager.SaveAsync();

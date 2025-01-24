@@ -13,5 +13,7 @@ public record BookCreationDto
     public int PageCount { get; set; }
 
     public int Quantity { get; set; } = 1;
+    
+    public string? ImageUrl { get; set; }
 
 }
