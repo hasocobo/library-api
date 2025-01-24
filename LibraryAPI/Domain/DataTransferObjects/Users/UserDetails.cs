@@ -8,5 +8,6 @@ public record UserDetails
     public string? Email { get; init; } = string.Empty;
     public DateTime? DateOfBirth { get; init; }
     public string? Username { get; init; } = string.Empty;
+    public ICollection<string> Roles { get; init; } = new List<string>();
     
 }

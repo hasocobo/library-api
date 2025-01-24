@@ -104,7 +104,27 @@ public class AuthService : IAuthService
         return userDetails;
     }
 
-    public async Task<string> CreateTokenAsync()
+    public async Task<(string, UserDetails)> LoginAsync()
+    {
+        if (_user == null)
+            throw new NotFoundException("User", Guid.Parse(_user!.Id));
+        
+        var token = await CreateTokenAsync();
+        var roles = await _userManager.GetRolesAsync(_user!);
+        var userDetails = new UserDetails
+        {
+            Id = _user!.Id,
+            Email = _user.Email,
+            FirstName = _user.FirstName,
+            LastName = _user.LastName,
+            DateOfBirth = _user.DateOfBirth,
+            Username = _user.UserName,
+            Roles = roles
+        };
+        
+        return (token, userDetails);
+    }
+    private async Task<string> CreateTokenAsync()
     {
         if (_user == null) throw new UnauthorizedAccessException();
 
