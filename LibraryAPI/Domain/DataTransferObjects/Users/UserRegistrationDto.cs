@@ -11,5 +11,5 @@ public record UserRegistrationDto
     public required string Email { get; init; }
     public string? PhoneNumber { get; init; }
     public DateTime? DateOfBirth { get; init; }
-    public ICollection<string>? Roles { get; init; } = new List<string>();
+    public ICollection<string>? Roles { get; init; } = new List<string>(){"USER"};
 }

@@ -1,8 +1,6 @@
 using ExcelExportService;
 using LibraryAPI.Application.Repositories;
 using LibraryAPI.Application.Repositories.Interfaces;
-using LibraryAPI.Application.Services;
-using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Persistence.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 

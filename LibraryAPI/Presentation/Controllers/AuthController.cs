@@ -48,9 +48,9 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var (jwtToken, user) = await _serviceManager.AuthService.LoginAsync();
+        var (jwtToken, userDetails) = await _serviceManager.AuthService.LoginAsync();
 
-        return Ok(new { jwtToken, user });
+        return Ok(new { jwtToken, userDetails });
     }
 
     [HttpDelete("users/{userId}")]

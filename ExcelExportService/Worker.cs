@@ -40,11 +40,11 @@ public class Worker : BackgroundService
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
         }
     }
 
-    public void ExportBorrowedBooksToExcel(IEnumerable<BorrowedBookDetailsDto> borrowedBooks, string filePath)
+    private static void ExportBorrowedBooksToExcel(IEnumerable<BorrowedBookDetailsDto> borrowedBooks, string filePath)
     {
         using (var spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
         {

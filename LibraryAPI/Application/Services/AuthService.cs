@@ -5,6 +5,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Users;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -71,14 +72,16 @@ public class AuthService : IAuthService
     public async Task<UserDetails> RegisterUserAsync(UserRegistrationDto userRegistrationDto)
     {
         _logger.LogInformation($"Registering new user with username {userRegistrationDto.UserName}");
+        
         var newUser = new ApplicationUser
         {
             Email = userRegistrationDto.Email,
             UserName = userRegistrationDto.UserName,
             FirstName = userRegistrationDto.FirstName,
-            LastName = userRegistrationDto.LastName,
+            LastName = userRegistrationDto.LastName
         };
         var result = await _userManager.CreateAsync(newUser, userRegistrationDto.Password);
+        ICollection<string> roles;
 
         if (result.Succeeded)
         {
@@ -87,10 +90,20 @@ public class AuthService : IAuthService
             {
                 var normalizedRoles = userRegistrationDto.Roles.Select(role => role.ToUpperInvariant()).ToList();
                 await _userManager.AddToRolesAsync(newUser, normalizedRoles);
+                roles = normalizedRoles;
                 _logger.LogInformation($"Registering roles to user is successful.");
             }
+            else
+            {
+                await _userManager.AddToRolesAsync(newUser, ["USER"]);
+                roles = ["USER"];
+            }
         }
-
+        else
+        {
+            throw new AuthenticationFailureException( result.Errors.ToList()[0].Description);
+        }
+        
         var userDetails = new UserDetails
         {
             Id = newUser.Id,
@@ -98,7 +111,8 @@ public class AuthService : IAuthService
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,
             DateOfBirth = newUser.DateOfBirth,
-            Username = newUser.UserName
+            Username = newUser.UserName,
+            Roles = roles
         };
 
         return userDetails;
