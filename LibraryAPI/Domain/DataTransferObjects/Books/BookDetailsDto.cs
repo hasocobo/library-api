@@ -2,7 +2,7 @@
 
 public record BookDetailsDto
 {
-    public Guid Id { get; init; }
+    public Guid BookId { get; init; }
     public string Title { get; init; } = string.Empty;
     public string? AuthorName { get; init; }
     public Guid AuthorId { get; init; }
@@ -11,6 +11,6 @@ public record BookDetailsDto
     public string? GenreName { get; init; }
     public string? ImageUrl { get; init; }
     
-    
+    public string? Description { get; init; }
     public int Quantity { get; init; }
 };

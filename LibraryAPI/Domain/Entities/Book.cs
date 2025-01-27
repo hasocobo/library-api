@@ -25,5 +25,7 @@ public class Book
     public string? ImageUrl { get; set; }
     
     public bool IsDeleted { get; set; } = false;
+    [MaxLength(200)]
+    public string? Description { get; set; }
     public ICollection<BorrowedBook>? BorrowedBooks { get; set; }
 }

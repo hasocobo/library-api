@@ -79,7 +79,7 @@ public class BooksController : ControllerBase
         Guid genreId)
     {
         var bookToReturn = await _serviceManager.BookService.CreateBookAsync(bookToCreate, authorId, genreId);
-        return CreatedAtAction(nameof(GetBookById), new { bookId = bookToReturn.Id }, bookToReturn);
+        return CreatedAtAction(nameof(GetBookById), new { bookId = bookToReturn.BookId }, bookToReturn);
     }
 
     [HttpPut("books/{bookId:guid}")]

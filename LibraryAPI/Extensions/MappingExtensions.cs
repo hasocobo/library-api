@@ -13,7 +13,7 @@ public static class MappingExtensions
         return new BookDetailsDto
         {
             AuthorId = book.AuthorId,
-            Id = book.Id,
+            BookId = book.Id,
             Title = book.Title,
             PageCount = book.PageCount,
             GenreName = book.Genre?.Name,
@@ -42,6 +42,7 @@ public static class MappingExtensions
         {
             Id = genre.Id,
             Name = genre.Name,
+            Slug = genre.Slug,
             ParentGenreId = genre.ParentGenreId
         };
     }
@@ -54,7 +55,11 @@ public static class MappingExtensions
             BookId = borrowedBook.BookId,
             BorrowerId = borrowedBook.BorrowerId,
             BorrowerName = $"{borrowedBook.Borrower?.FirstName} {borrowedBook.Borrower?.LastName}",
-            BookName = borrowedBook.Book?.Title,
+            Title = borrowedBook.Book?.Title,
+            Description = borrowedBook.Book?.Description,
+            GenreName = borrowedBook.Book?.Genre?.Name,
+            ImageUrl = borrowedBook.Book?.ImageUrl,
+            PageCount = borrowedBook.Book!.PageCount,
             AuthorName = $"{borrowedBook.Book?.Author?.FirstName} {borrowedBook.Book?.Author?.LastName}",
             IsReturned = borrowedBook.IsReturned,
             BorrowingDate = borrowedBook.BorrowedDate,

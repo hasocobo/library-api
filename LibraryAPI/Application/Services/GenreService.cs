@@ -50,6 +50,7 @@ public class GenreService : IGenreService
         {
             Id = Guid.NewGuid(),
             Name = genreCreationDto.Name,
+            Slug = genreCreationDto.Slug,
             ParentGenreId = genreCreationDto.ParentGenreId
         };
         
@@ -70,6 +71,7 @@ public class GenreService : IGenreService
         
         if (genreUpdateDto.Name != null) genreToUpdate.Name = genreUpdateDto.Name;
         if (genreUpdateDto.ParentGenreId != null) genreToUpdate.ParentGenreId = genreUpdateDto.ParentGenreId;
+        if (genreUpdateDto.Slug != null) genreToUpdate.Slug = genreUpdateDto.Slug;
         
         _repositoryManager.GenreRepository.UpdateGenre(genreToUpdate);
         await _repositoryManager.SaveAsync();

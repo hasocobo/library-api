@@ -24,6 +24,8 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
             .Include(b => b.Borrower)
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
+            .Include(b => b.Book)
+            .ThenInclude(b => b!.Genre)
             .ToListAsync();
 
         return borrowedBooks;
@@ -34,8 +36,11 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
         var query = FindByCondition(bBook => bBook.Id.Equals(id));
 
         var borrowedBook = await query
+            .Include(b => b.Borrower)
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
+            .Include(b => b.Book)
+            .ThenInclude(b => b!.Genre)
             .FirstOrDefaultAsync();
 
         return borrowedBook;
@@ -46,8 +51,11 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
         var query = FindByCondition(bBook => bBook.BorrowerId.Equals(userId));
 
         var borrowedBooks = await query
-            .Include(bb => bb.Book)
-            .ThenInclude(b => b!.Author)
+                .Include(b => b.Borrower)
+                .Include(bb => bb.Book)
+                .ThenInclude(b => b!.Author)
+                .Include(b => b.Book)
+                .ThenInclude(b => b!.Genre)
             .ToListAsync();
 
         return borrowedBooks;
