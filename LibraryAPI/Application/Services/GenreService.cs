@@ -27,6 +27,16 @@ public class GenreService : IGenreService
         
         _logger.LogInformation($"Returning genre details");
         return genre.ToDetailsDto();  
+    }    
+    public async Task<GenreDetailsDto> GetGenreBySlugAsync(string slug)
+    {
+        _logger.LogInformation($"Retrieving genre with slug name: {slug}");
+        var genre = await _repositoryManager.GenreRepository.GetGenreBySlugAsync(slug);
+        if (genre == null)
+            throw new Exception($"Genre with slug name {slug} not found.");
+        
+        _logger.LogInformation($"Returning genre details");
+        return genre.ToDetailsDto();  
     }
 
     public async Task<IEnumerable<GenreDetailsDto>> GetAllGenresAsync()

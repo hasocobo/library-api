@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAPI.Application.Repositories;
 
-public class GenreRepository :  RepositoryBase<Genre>, IGenreRepository
+public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
 {
     public GenreRepository(LibraryContext libraryContext) : base(libraryContext)
     {
@@ -16,16 +16,27 @@ public class GenreRepository :  RepositoryBase<Genre>, IGenreRepository
         var query = FindAll();
 
         var genres = await query.ToListAsync();
-        
+
         return genres;
     }
 
     public async Task<Genre?> GetGenreByIdAsync(Guid id)
     {
         var query = FindByCondition(genre => genre.Id.Equals(id));
-        
+
         var genre = await query.FirstOrDefaultAsync();
-        
+
+        return genre;
+    }
+
+    public async Task<Genre?> GetGenreBySlugAsync(string slug)
+    {
+        var query = FindByCondition(genre => genre.Slug.Equals(slug))
+            .Include(genre => genre.Books)
+            .ThenInclude(b => b.Author);
+
+        var genre = await query.FirstOrDefaultAsync();
+
         return genre;
     }
 

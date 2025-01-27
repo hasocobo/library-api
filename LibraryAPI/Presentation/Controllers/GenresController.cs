@@ -24,10 +24,17 @@ public class GenresController : ControllerBase
         return Ok(genres);
     }
 
-    [HttpGet("genres/{genreId}")]
+    [HttpGet("genres/{genreId:guid}")]
     public async Task<ActionResult<GenreDetailsDto>> GetGenreById(Guid genreId)
     {
         var genre = await _serviceManager.GenreService.GetGenreByIdAsync(genreId);
+        return Ok(genre);
+    }
+
+    [HttpGet("genres/{slug}")]
+    public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetGenreBySlug(string slug)
+    {
+        var genre = await _serviceManager.GenreService.GetGenreBySlugAsync(slug);
         return Ok(genre);
     }
 

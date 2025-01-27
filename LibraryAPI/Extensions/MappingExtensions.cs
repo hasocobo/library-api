@@ -43,7 +43,8 @@ public static class MappingExtensions
             Id = genre.Id,
             Name = genre.Name,
             Slug = genre.Slug,
-            ParentGenreId = genre.ParentGenreId
+            ParentGenreId = genre.ParentGenreId,
+            Books = genre.Books.Select(b => b.ToDetailsDto()).ToList()
         };
     }
 
