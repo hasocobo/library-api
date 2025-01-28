@@ -36,6 +36,20 @@ public class BorrowedBookService : IBorrowedBookService
         return borrowedBooksToReturn;
     }
 
+    // in case user clicks on an already borrowed book in book catalog
+    public async Task<BorrowedBookDetailsDto?> GetBorrowedBookByUserAndBookId(string userId, Guid bookId)
+    {
+        _logger.LogInformation($"Getting borrowed book by user ID: {userId} and book ID: {bookId}");
+        var borrowedBook =
+            await _repositoryManager.BorrowedBookRepository.CheckIfTheBookIsBorrowedByUser(userId, bookId);
+
+        if (borrowedBook == null)
+            return null;
+            //throw new NotFoundException("Borrowed Book", bookId);
+        return borrowedBook.ToDetailsDto();
+        
+    }
+
     public async Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId)
     {
         _logger.LogInformation($"Retrieving borrowed book with ID: {borrowedBookId}");
@@ -62,6 +76,11 @@ public class BorrowedBookService : IBorrowedBookService
 
         if (!await _repositoryManager.BookRepository.CheckIfBookIsAvailableAsync(borrowedBookCreationDto.BookId))
             throw new NotFoundException("Book", borrowedBookCreationDto.BookId);
+        
+        if (await _repositoryManager.BorrowedBookRepository.CheckIfTheBookIsBorrowedByUser(userId,
+                borrowedBookCreationDto.BookId) != null)
+            throw new ArgumentException($"The book: {borrowedBookCreationDto.BookId} is already borrowed");
+        
         var borrowedBook = new BorrowedBook
         {
             Id = Guid.NewGuid(),
@@ -104,7 +123,7 @@ public class BorrowedBookService : IBorrowedBookService
         var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
         if (borrowedBook == null)
             throw new NotFoundException("Borrowed Book", borrowedBookId);
-        
+
         if (borrowedBook.IsReturned == true)
             throw new Exception($"Borrowed book with ID: {borrowedBookId} is already returned");
 

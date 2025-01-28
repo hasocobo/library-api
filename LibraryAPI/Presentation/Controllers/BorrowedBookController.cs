@@ -23,6 +23,18 @@ public class BorrowedBookController : ControllerBase
         return Ok(borrowedBooks);
     }
 
+    [HttpGet("users/{userId}/borrowed-books/{bookId}")]
+    public async Task<ActionResult<BorrowedBookDetailsDto>> GetBorrowedBookByUserAndBookId(string userId, Guid bookId)
+    {
+        var borrowedBook = 
+            await _serviceManager.BorrowedBookService.GetBorrowedBookByUserAndBookId(userId, bookId);
+        
+        if (borrowedBook == null)
+            return NotFound();
+        
+        return Ok(borrowedBook);
+    }
+    
     [HttpGet("borrowed-books")]
     public async Task<ActionResult<IEnumerable<BorrowedBookDetailsDto>>> GetBorrowedBooks()
     {

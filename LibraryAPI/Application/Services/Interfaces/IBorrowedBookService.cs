@@ -9,6 +9,7 @@ public interface IBorrowedBookService
     Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId);
     
     Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId);
+    Task<BorrowedBookDetailsDto?> GetBorrowedBookByUserAndBookId(string userId, Guid bookId);
 
     Task<BorrowedBookDetailsDto> BorrowABookAsync(BorrowedBookCreationDto borrowedBookCreationDto, string userId);
     Task ReturnABorrowedBookAsync(Guid borrowedBookId, string userId);
