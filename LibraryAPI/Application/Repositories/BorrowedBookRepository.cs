@@ -19,7 +19,7 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
     public async Task<BorrowedBook?> CheckIfTheBookIsBorrowedByUser(string userId, Guid bookId)
     {
         var query = FindByCondition(borrowedBook =>
-            borrowedBook.BookId.Equals(bookId) && borrowedBook.BorrowerId.Equals(userId));
+            borrowedBook.BookId.Equals(bookId) && borrowedBook.BorrowerId.Equals(userId) && borrowedBook.IsReturned == false);
 
         var borrowedBook = await query.Include(b => b.Borrower)
             .Include(bb => bb.Book)
