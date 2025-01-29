@@ -1,4 +1,5 @@
 ﻿using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 
 namespace LibraryAPI.Application.Repositories.Interfaces;
 
@@ -6,9 +7,9 @@ public interface IBorrowedBookRepository
 {
     Task<bool> CheckIfBorrowedBookExists(Guid id);
     Task<BorrowedBook?> CheckIfTheBookIsBorrowedByUser(string userId, Guid bookId);
-    Task<IEnumerable<BorrowedBook>> GetBorrowedBooks();
+    Task<PagedResponse<BorrowedBook>> GetBorrowedBooks(QueryParameters queryParameters);
     Task<BorrowedBook?> GetBorrowedBookById(Guid id);
-    Task<IEnumerable<BorrowedBook>> GetBorrowedBooksByUserId(string userId);
+    Task<PagedResponse<BorrowedBook>> GetBorrowedBooksByUserId(string userId, QueryParameters queryParameters);
     
     void CreateBorrowedBook(BorrowedBook borrowedBook);
     

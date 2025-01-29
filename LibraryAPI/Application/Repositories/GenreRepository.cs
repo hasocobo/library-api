@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Persistence.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,15 +30,28 @@ public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
         return genre;
     }
 
-    public async Task<Genre?> GetGenreBySlugAsync(string slug)
+    public async Task<PagedResponse<Genre>> GetGenreBySlugAsync(string slug, QueryParameters queryParameters)
     {
         var query = FindByCondition(genre => genre.Slug.Equals(slug))
-            .Include(genre => genre.Books)
-            .ThenInclude(b => b.Author);
+            .Include(genre => genre.Books
+                /*.Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize))  // sqlite desteklemiyor
+        */).ThenInclude(b => b.Author);
 
-        var genre = await query.FirstOrDefaultAsync();
+        var totalCount = await query.CountAsync();
 
-        return genre;
+        var genre = await query.ToListAsync();
+
+        var pagedResponse = new PagedResponse<Genre>
+        {
+            Items = genre,
+            PageNumber = queryParameters.PageNumber,
+            PageSize = queryParameters.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)queryParameters.PageSize),
+        };
+
+        return pagedResponse;
     }
 
     public void CreateGenre(Genre genre)

@@ -1,14 +1,15 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 
 namespace LibraryAPI.Application.Services.Interfaces;
 
 public interface IBorrowedBookService
 {
-    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksAsync();
+    Task<PagedResponse<BorrowedBookDetailsDto>> GetBorrowedBooksAsync(QueryParameters queryParameters);
     Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId);
     
-    Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId);
+    Task<PagedResponse<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId, QueryParameters queryParameters);
     Task<BorrowedBookDetailsDto?> GetBorrowedBookByUserAndBookId(string userId, Guid bookId);
 
     Task<BorrowedBookDetailsDto> BorrowABookAsync(BorrowedBookCreationDto borrowedBookCreationDto, string userId);

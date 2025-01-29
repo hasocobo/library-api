@@ -30,9 +30,9 @@ public class BooksController : ControllerBase
             PageSize = pagedResponse.PageSize,
             TotalCount = pagedResponse.TotalCount
         };
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
         var books = pagedResponse.Items;
         
-        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
         return Ok(books);
     }
 

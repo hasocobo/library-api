@@ -1,5 +1,7 @@
-﻿using LibraryAPI.Application.Services.Interfaces;
+﻿using System.Text.Json;
+using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -16,30 +18,53 @@ public class BorrowedBookController : ControllerBase
     }
 
     [HttpGet("users/{userId}/borrowed-books")]
-    public async Task<ActionResult<IEnumerable<BorrowedBookDetailsDto>>> GetBorrowedBooksByUserId(string userId)
+    public async Task<ActionResult<IEnumerable<BorrowedBookDetailsDto>>> GetBorrowedBooksByUserId(string userId,
+        [FromQuery] QueryParameters queryParameters)
     {
-        var borrowedBooks =
-            await _serviceManager.BorrowedBookService.GetBorrowedBooksByUserIdAsync(userId);
+        var pagedResponse =
+            await _serviceManager.BorrowedBookService.GetBorrowedBooksByUserIdAsync(userId, queryParameters);
+
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
+        var borrowedBooks = pagedResponse.Items;
+
         return Ok(borrowedBooks);
     }
 
     [HttpGet("users/{userId}/borrowed-books/{bookId}")]
     public async Task<ActionResult<BorrowedBookDetailsDto>> GetBorrowedBookByUserAndBookId(string userId, Guid bookId)
     {
-        var borrowedBook = 
+        var borrowedBook =
             await _serviceManager.BorrowedBookService.GetBorrowedBookByUserAndBookId(userId, bookId);
-        
+
         if (borrowedBook == null)
             return NotFound();
-        
+
         return Ok(borrowedBook);
     }
-    
+
     [HttpGet("borrowed-books")]
-    public async Task<ActionResult<IEnumerable<BorrowedBookDetailsDto>>> GetBorrowedBooks()
+    public async Task<ActionResult<IEnumerable<BorrowedBookDetailsDto>>> GetBorrowedBooks(
+        [FromQuery] QueryParameters queryParameters)
     {
-        var borrowedBooks =
-            await _serviceManager.BorrowedBookService.GetBorrowedBooksAsync();
+        var pagedResponse =
+            await _serviceManager.BorrowedBookService.GetBorrowedBooksAsync(queryParameters);
+
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
+        var borrowedBooks = pagedResponse.Items;
 
         return Ok(borrowedBooks);
     }
@@ -58,7 +83,7 @@ public class BorrowedBookController : ControllerBase
         [FromBody] BorrowedBookCreationDto borrowedBookCreationDto)
     {
         var bookToReturn = await _serviceManager.BorrowedBookService.BorrowABookAsync(borrowedBookCreationDto, userId);
-        
+
         return CreatedAtAction(nameof(GetBorrowedBookById), new { borrowedBookId = bookToReturn.Id }, bookToReturn);
     }
 

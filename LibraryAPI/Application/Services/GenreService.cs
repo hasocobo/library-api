@@ -1,9 +1,12 @@
 ﻿using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Application.Services.Interfaces;
+using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Application.Services;
 
@@ -24,19 +27,31 @@ public class GenreService : IGenreService
         var genre = await _repositoryManager.GenreRepository.GetGenreByIdAsync(genreId);
         if (genre == null)
             throw new NotFoundException("Genre", genreId);
-        
+
         _logger.LogInformation($"Returning genre details");
-        return genre.ToDetailsDto();  
-    }    
-    public async Task<GenreDetailsDto> GetGenreBySlugAsync(string slug)
+        return genre.ToDetailsDto();
+    }
+
+    public async Task<PagedResponse<GenreDetailsDto>> GetGenreBySlugAsync(string slug, QueryParameters queryParameters)
     {
         _logger.LogInformation($"Retrieving genre with slug name: {slug}");
-        var genre = await _repositoryManager.GenreRepository.GetGenreBySlugAsync(slug);
-        if (genre == null)
+        var pagedResponse = await _repositoryManager.GenreRepository.GetGenreBySlugAsync(slug, queryParameters);
+        var genreToReturn = pagedResponse.Items.Select(g => g.ToDetailsDto()).ToList();
+
+        if (genreToReturn.FirstOrDefault() == null)
             throw new Exception($"Genre with slug name {slug} not found.");
-        
+
         _logger.LogInformation($"Returning genre details");
-        return genre.ToDetailsDto();  
+
+        var newPaginatedResult = new PagedResponse<GenreDetailsDto>
+        {
+            Items = genreToReturn,
+            PageNumber = pagedResponse.PageNumber,
+            PageSize = pagedResponse.PageSize,
+            TotalPages = pagedResponse.TotalPages,
+            TotalCount = pagedResponse.TotalCount
+        };
+        return newPaginatedResult;
     }
 
     public async Task<IEnumerable<GenreDetailsDto>> GetAllGenresAsync()
@@ -48,7 +63,7 @@ public class GenreService : IGenreService
             _logger.LogInformation("No genres found");
             return Array.Empty<GenreDetailsDto>();
         }
-        
+
         _logger.LogInformation($"Returning {genres.Count} genres with details");
         return genres.Select(g => g.ToDetailsDto());
     }
@@ -63,10 +78,10 @@ public class GenreService : IGenreService
             Slug = genreCreationDto.Slug,
             ParentGenreId = genreCreationDto.ParentGenreId
         };
-        
+
         _repositoryManager.GenreRepository.CreateGenre(genre);
         await _repositoryManager.SaveAsync();
-        
+
         _logger.LogInformation($"Returning created genre details");
         return genre.ToDetailsDto();
     }
@@ -75,14 +90,14 @@ public class GenreService : IGenreService
     {
         _logger.LogInformation($"Updating genre with ID: {genreId}");
         var genreToUpdate = await _repositoryManager.GenreRepository.GetGenreByIdAsync(genreId);
-        
+
         if (genreToUpdate == null)
             throw new NotFoundException("Genre", genreId);
-        
+
         if (genreUpdateDto.Name != null) genreToUpdate.Name = genreUpdateDto.Name;
         if (genreUpdateDto.ParentGenreId != null) genreToUpdate.ParentGenreId = genreUpdateDto.ParentGenreId;
         if (genreUpdateDto.Slug != null) genreToUpdate.Slug = genreUpdateDto.Slug;
-        
+
         _repositoryManager.GenreRepository.UpdateGenre(genreToUpdate);
         await _repositoryManager.SaveAsync();
     }
@@ -91,10 +106,10 @@ public class GenreService : IGenreService
     {
         _logger.LogInformation($"Deleting genre with ID: {id}");
         var genreToDelete = await _repositoryManager.GenreRepository.GetGenreByIdAsync(id);
-        
+
         if (genreToDelete == null)
             throw new NotFoundException("Genre", id);
-        
+
         _repositoryManager.GenreRepository.DeleteGenre(genreToDelete);
         await _repositoryManager.SaveAsync();
     }

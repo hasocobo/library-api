@@ -3,6 +3,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
 
 namespace LibraryAPI.Application.Services;
@@ -18,22 +19,31 @@ public class BorrowedBookService : IBorrowedBookService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksAsync()
+    public async Task<PagedResponse<BorrowedBookDetailsDto>> GetBorrowedBooksAsync(QueryParameters queryParameters)
     {
-        var borrowedBooks = await _repositoryManager.BorrowedBookRepository.GetBorrowedBooks() as List<BorrowedBook>;
-
+        var paginatedResponse =
+            await _repositoryManager.BorrowedBookRepository.GetBorrowedBooks(queryParameters);
+        var borrowedBooks = paginatedResponse.Items as List<BorrowedBook>;
         if (borrowedBooks == null)
         {
             _logger.LogInformation("No borrowed books found");
-            return Array.Empty<BorrowedBookDetailsDto>();
+            return new PagedResponse<BorrowedBookDetailsDto> { Items = Array.Empty<BorrowedBookDetailsDto>() };
         }
 
         _logger.LogInformation("Retrieving all borrowed books");
 
-        var borrowedBooksToReturn =
-            borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
+        var booksToReturn = borrowedBooks.Select(b => b.ToDetailsDto());
 
-        return borrowedBooksToReturn;
+        var newPaginatedResult = new PagedResponse<BorrowedBookDetailsDto>
+        {
+            Items = booksToReturn,
+            PageNumber = paginatedResponse.PageNumber,
+            PageSize = paginatedResponse.PageSize,
+            TotalPages = paginatedResponse.TotalPages,
+            TotalCount = paginatedResponse.TotalCount
+        };
+
+        return newPaginatedResult;
     }
 
     // in case user clicks on an already borrowed book in book catalog
@@ -45,9 +55,8 @@ public class BorrowedBookService : IBorrowedBookService
 
         if (borrowedBook == null)
             return null;
-            //throw new NotFoundException("Borrowed Book", bookId);
+        //throw new NotFoundException("Borrowed Book", bookId);
         return borrowedBook.ToDetailsDto();
-        
     }
 
     public async Task<BorrowedBookDetailsDto> GetBorrowedBookByIdAsync(Guid borrowedBookId)
@@ -60,13 +69,33 @@ public class BorrowedBookService : IBorrowedBookService
         return borrowedBook.ToDetailsDto();
     }
 
-    public async Task<IEnumerable<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId)
+    public async Task<PagedResponse<BorrowedBookDetailsDto>> GetBorrowedBooksByUserIdAsync(string userId,
+        QueryParameters queryParameters)
     {
         _logger.LogInformation($"Retrieving borrowed books by user with ID: {userId}");
-        var borrowedBooks =
-            await _repositoryManager.BorrowedBookRepository.GetBorrowedBooksByUserId(userId);
+        var paginatedResponse =
+            await _repositoryManager.BorrowedBookRepository.GetBorrowedBooksByUserId(userId, queryParameters);
+        
+        var borrowedBooks = paginatedResponse.Items as List<BorrowedBook>;
+        
+        if (borrowedBooks == null)
+        {
+            _logger.LogInformation("No borrowed books found");
+            return new PagedResponse<BorrowedBookDetailsDto> { Items = Array.Empty<BorrowedBookDetailsDto>() };
+        }
+        
+        var booksToReturn = borrowedBooks.Select(b => b.ToDetailsDto());
 
-        return borrowedBooks.Select(borrowedBook => borrowedBook.ToDetailsDto());
+        var newPaginatedResult = new PagedResponse<BorrowedBookDetailsDto>
+        {
+            Items = booksToReturn,
+            PageNumber = paginatedResponse.PageNumber,
+            PageSize = paginatedResponse.PageSize,
+            TotalPages = paginatedResponse.TotalPages,
+            TotalCount = paginatedResponse.TotalCount
+        };
+
+        return newPaginatedResult;
     }
 
     public async Task<BorrowedBookDetailsDto> BorrowABookAsync(BorrowedBookCreationDto borrowedBookCreationDto,
@@ -76,11 +105,11 @@ public class BorrowedBookService : IBorrowedBookService
 
         if (!await _repositoryManager.BookRepository.CheckIfBookIsAvailableAsync(borrowedBookCreationDto.BookId))
             throw new NotFoundException("Book", borrowedBookCreationDto.BookId);
-        
+
         if (await _repositoryManager.BorrowedBookRepository.CheckIfTheBookIsBorrowedByUser(userId,
                 borrowedBookCreationDto.BookId) != null)
             throw new ArgumentException($"The book: {borrowedBookCreationDto.BookId} is already borrowed");
-        
+
         var borrowedBook = new BorrowedBook
         {
             Id = Guid.NewGuid(),

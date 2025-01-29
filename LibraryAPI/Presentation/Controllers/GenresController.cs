@@ -1,6 +1,8 @@
-﻿using LibraryAPI.Application.Services.Interfaces;
+﻿using System.Text.Json;
+using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -20,7 +22,7 @@ public class GenresController : ControllerBase
     public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetAllGenres()
     {
         var genres = await _serviceManager.GenreService.GetAllGenresAsync();
-        
+
         return Ok(genres);
     }
 
@@ -32,9 +34,19 @@ public class GenresController : ControllerBase
     }
 
     [HttpGet("genres/{slug}")]
-    public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetGenreBySlug(string slug)
+    public async Task<ActionResult<GenreDetailsDto>> GetGenreBySlug(string slug,
+        [FromQuery] QueryParameters queryParameters)
     {
-        var genre = await _serviceManager.GenreService.GetGenreBySlugAsync(slug);
+        var pagedResponse = await _serviceManager.GenreService.GetGenreBySlugAsync(slug, queryParameters);
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        var genre = pagedResponse.Items.FirstOrDefault();
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
         return Ok(genre);
     }
 
