@@ -1,6 +1,8 @@
-﻿using LibraryAPI.Application.Services.Interfaces;
+﻿using System.Text.Json;
+using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -17,10 +19,20 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet("books")]
-    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooks()
+    public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooks([FromQuery] QueryParameters queryParameters)
     {
-        var books = await _serviceManager.BookService.GetBooksAsync();
-
+        var pagedResponse = await _serviceManager.BookService.GetBooksAsync(queryParameters);
+        
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        var books = pagedResponse.Items;
+        
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
         return Ok(books);
     }
 
@@ -51,7 +63,7 @@ public class BooksController : ControllerBase
         await _serviceManager.BookService.RestoreDeletedBooksAsync();
         return NoContent();
     }
-    
+
     [HttpGet("books/{bookId:guid}")]
     public async Task<ActionResult<BookDetailsDto>> GetBookById(Guid bookId)
     {
@@ -65,14 +77,14 @@ public class BooksController : ControllerBase
         var books = await _serviceManager.BookService.GetBooksByAuthorIdAsync(authorId);
         return Ok(books);
     }
-    
+
     [HttpGet("genres/{genreId:guid}/books")]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooksByGenreId(Guid genreId)
     {
         var books = await _serviceManager.BookService.GetBooksByGenreIdAsync(genreId);
         return Ok(books);
     }
-    
+
 
     [HttpPost("authors/{authorId:guid}/books")]
     public async Task<ActionResult<BookDetailsDto>> CreateBook([FromBody] BookCreationDto bookToCreate, Guid authorId,
@@ -88,7 +100,7 @@ public class BooksController : ControllerBase
         await _serviceManager.BookService.UpdateBookAsync(bookId, bookToUpdate);
         return Ok();
     }
-    
+
     [HttpDelete("books/{bookId:guid}")]
     public async Task<ActionResult> DeleteBook(Guid bookId)
     {

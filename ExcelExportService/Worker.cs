@@ -81,7 +81,7 @@ public class Worker : BackgroundService
             {
                 var row = new Row();
                 row.Append(
-                    new Cell { CellValue = new CellValue(book.BookName!), DataType = CellValues.String },
+                    new Cell { CellValue = new CellValue(book.Title!), DataType = CellValues.String },
                     new Cell
                     {
                         CellValue = new CellValue(book.BorrowerName!),

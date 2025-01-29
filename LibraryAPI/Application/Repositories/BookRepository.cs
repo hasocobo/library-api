@@ -1,8 +1,8 @@
 ﻿using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Persistence.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-
 namespace LibraryAPI.Application.Repositories;
 
 public class BookRepository : RepositoryBase<Book>, IBookRepository
@@ -11,15 +11,29 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
     {
     }
 
-    public async Task<IEnumerable<Book>> GetBooksAsync()
+    public async Task<PagedResponse<Book>> GetBooksAsync(QueryParameters queryParameters)
     {
         var query = FindByCondition(book => book.IsDeleted == false)
             .Include(book => book.Author)
             .Include(book => book.Genre);
+        
+        var totalCount = await query.CountAsync();
+        
+        var books = await query
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
+            .ToListAsync();
 
-        var books = await query.ToListAsync();
+        var pagedResponse = new PagedResponse<Book>
+        {
+            Items = books,
+            PageNumber = queryParameters.PageNumber,
+            PageSize = queryParameters.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)queryParameters.PageSize),
+        };
 
-        return books;
+        return pagedResponse;
     }
 
     public async Task<IEnumerable<Book>> GetDeletedBooksAsync()
@@ -45,7 +59,7 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
     public async Task<bool> CheckIfBookIsAvailableAsync(Guid bookId)
     {
         var query = FindByCondition(book => book.Id.Equals(bookId) && book.Quantity > 0);
-        
+
         return await query.AnyAsync();
     }
 

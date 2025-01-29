@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 
 namespace LibraryAPI.Application.Repositories.Interfaces;
 
 public interface IBookRepository
 {
-    Task<IEnumerable<Book>> GetBooksAsync();
+    Task<PagedResponse<Book>> GetBooksAsync(QueryParameters queryParameters);
     Task<IEnumerable<Book>> GetDeletedBooksAsync();
     Task<Book?> GetBookByIdAsync(Guid id);
     Task<Book?> GetDeletedBookByIdAsync(Guid id);

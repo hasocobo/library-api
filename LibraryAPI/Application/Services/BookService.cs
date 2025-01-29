@@ -3,6 +3,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
 
 namespace LibraryAPI.Application.Services;
@@ -42,21 +43,37 @@ public class BookService : IBookService
         return bookToReturn;
     }
 
-    public async Task<IEnumerable<BookDetailsDto>> GetBooksAsync()
+    public async Task<PagedResponse<BookDetailsDto>> GetBooksAsync(QueryParameters queryParameters)
     {
-        _logger.LogInformation("Retrieving books");
-        var books = (await _repositoryManager.BookRepository.GetBooksAsync()) as List<Book>;
+        _logger.LogInformation(
+            $"Retrieving books at page {queryParameters.PageNumber} with page size {queryParameters.PageSize}.");
+        var paginatedResponse = (await _repositoryManager.BookRepository.GetBooksAsync(queryParameters));
 
+        var books = paginatedResponse.Items as List<Book>;
         if (books == null)
         {
             _logger.LogInformation("No books found");
-            return Array.Empty<BookDetailsDto>();
+            return new PagedResponse<BookDetailsDto>
+            {
+                Items = Array.Empty<BookDetailsDto>()
+            };
         }
 
         _logger.LogInformation("Returning book details");
         var booksToReturn = books.Select(b => b.ToDetailsDto());
-        return booksToReturn;
+
+        var newPaginatedResult = new PagedResponse<BookDetailsDto>
+        {
+            Items = booksToReturn,
+            PageNumber = paginatedResponse.PageNumber,
+            PageSize = paginatedResponse.PageSize,
+            TotalPages = paginatedResponse.TotalPages,
+            TotalCount = paginatedResponse.TotalCount
+        };
+        
+        return newPaginatedResult;
     }
+
     public async Task<IEnumerable<BookDetailsDto>> GetBooksByAuthorIdAsync(Guid authorId)
     {
         _logger.LogInformation($"Retrieving books for author with ID: {authorId}");
@@ -72,7 +89,7 @@ public class BookService : IBookService
         var booksToReturn = books.Select(b => b.ToDetailsDto());
         return booksToReturn;
     }
-    
+
     public async Task<IEnumerable<BookDetailsDto>> GetBooksByGenreIdAsync(Guid genreId)
     {
         _logger.LogInformation($"Retrieving books by genre with ID: {genreId}");
@@ -93,7 +110,7 @@ public class BookService : IBookService
     {
         _logger.LogInformation("Retrieving deleted books");
         var books = await _repositoryManager.BookRepository.GetDeletedBooksAsync();
-        
+
         return books.Select(b => b.ToDetailsDto());
     }
 
@@ -101,12 +118,13 @@ public class BookService : IBookService
     {
         _logger.LogInformation($"Retrieving deleted book with ID: {bookId}");
         var book = await _repositoryManager.BookRepository.GetDeletedBookByIdAsync(bookId);
-        
+
         if (book == null)
             throw new NotFoundException("Deleted book", bookId);
-        
+
         return book.ToDetailsDto();
     }
+
     public async Task<BookDetailsDto> GetBookByIdAsync(Guid bookId)
     {
         _logger.LogInformation($"Retrieving book with ID: {bookId}");
@@ -138,10 +156,10 @@ public class BookService : IBookService
 
         if (bookUpdateDto.PageCount != null)
             bookToUpdate.PageCount = (int)bookUpdateDto.PageCount;
-        
+
         if (bookUpdateDto.Quantity != null)
             bookToUpdate.Quantity = (int)bookUpdateDto.Quantity;
-        
+
         if (bookUpdateDto.ImageUrl != null)
             bookToUpdate.ImageUrl = bookUpdateDto.ImageUrl;
 
@@ -165,9 +183,9 @@ public class BookService : IBookService
     {
         _logger.LogInformation($"Restoring deleted book with ID: {bookId}");
         var bookToRestore = await _repositoryManager.BookRepository.GetDeletedBookByIdAsync(bookId);
-        if (bookToRestore == null) 
+        if (bookToRestore == null)
             throw new NotFoundException("Book", bookId);
-        
+
         bookToRestore.IsDeleted = false;
         _repositoryManager.BookRepository.UpdateBook(bookToRestore);
         await _repositoryManager.SaveAsync();
@@ -177,7 +195,7 @@ public class BookService : IBookService
     {
         _logger.LogInformation("Restoring deleted books");
         var books = await _repositoryManager.BookRepository.GetDeletedBooksAsync() as List<Book>;
-        
+
         if (books == null)
             return;
 
@@ -185,7 +203,7 @@ public class BookService : IBookService
         {
             book.IsDeleted = false;
         }
-        
+
         await _repositoryManager.SaveAsync();
     }
 }

@@ -1,13 +1,14 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects;
 using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 
 namespace LibraryAPI.Application.Services.Interfaces;
 
 public interface IBookService
 {
     Task<BookDetailsDto> CreateBookAsync(BookCreationDto bookCreateDto, Guid authorId, Guid genreId);
-    Task<IEnumerable<BookDetailsDto>> GetBooksAsync();
+    Task<PagedResponse<BookDetailsDto>> GetBooksAsync(QueryParameters queryParameters);
     Task<IEnumerable<BookDetailsDto>> GetDeletedBooksAsync();
     Task<BookDetailsDto> GetDeletedBookByIdAsync(Guid deletedBookId);
     Task<IEnumerable<BookDetailsDto>> GetBooksByAuthorIdAsync(Guid authorId);

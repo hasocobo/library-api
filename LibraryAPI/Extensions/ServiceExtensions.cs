@@ -19,7 +19,8 @@ public static class ServiceExtensions
         {
             options.AddPolicy(
                 "CorsPolicy",
-                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+                    .WithExposedHeaders("LibraryApi-Pagination"));
         });
     }
 
@@ -41,6 +42,7 @@ public static class ServiceExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IServiceManager, ServiceManager>();
     }
+
     public static void ConfigureIdentity(this IServiceCollection services)
     {
         var builder = services.AddIdentity<ApplicationUser, IdentityRole>(o =>
@@ -54,14 +56,14 @@ public static class ServiceExtensions
             .AddEntityFrameworkStores<LibraryContext>()
             .AddDefaultTokenProviders();
     }
-    
+
     public static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
         var secretKey = Environment.GetEnvironmentVariable("DOTNETJWTSECRET");
 
         if (string.IsNullOrWhiteSpace(secretKey)) throw new ApplicationException("Missing JWT token secret");
-        
+
         services.AddAuthentication(o =>
         {
             o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
