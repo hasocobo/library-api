@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using LibraryAPI.Domain.Exceptions;
 using LibraryAPI.Extensions;
 using LibraryAPI.Persistence.Infrastructure;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -19,6 +21,14 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddDbContext<LibraryContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("LibraryDB")));
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddRateLimiter(_ => _
+        .AddFixedWindowLimiter(policyName: "fixed", options =>
+        {
+            options.PermitLimit = 4;
+            options.Window = TimeSpan.FromSeconds(12);
+            options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            options.QueueLimit = 2;
+        }));
     builder.Services.AddSwaggerGen();
     builder.Services.AddEntityRepositories();
     builder.Services.AddEntityServices();
@@ -53,6 +63,8 @@ var app = builder.Build();
     }
 
     app.UseHttpsRedirection();
+    
+    app.UseRateLimiter();
 
     app.UseRouting();
 

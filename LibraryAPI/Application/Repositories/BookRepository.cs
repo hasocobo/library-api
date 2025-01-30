@@ -3,6 +3,7 @@ using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Persistence.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+
 namespace LibraryAPI.Application.Repositories;
 
 public class BookRepository : RepositoryBase<Book>, IBookRepository
@@ -15,10 +16,28 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
     {
         var query = FindByCondition(book => book.IsDeleted == false)
             .Include(book => book.Author)
-            .Include(book => book.Genre);
-        
+            .Include(book => book.Genre) as IQueryable<Book>;
+
+        if (!string.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+        {
+            var keywords = queryParameters.SearchTerm
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => k.Trim().ToLower())
+                .ToArray();
+
+            // search query for each keyword. 
+            query = query.Where(b =>
+                keywords.Any(keyword =>
+                    b.Title.ToLower().Contains(keyword) ||
+                    (b.Description != null &&
+                        b.Description.ToLower().Contains(keyword) ||
+                        b.Author!.FirstName.ToLower().Contains(keyword) ||
+                        b.Author.LastName.ToLower().Contains(keyword))
+                ));
+        }
+
         var totalCount = await query.CountAsync();
-        
+
         var books = await query
             .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
             .Take(queryParameters.PageSize)
