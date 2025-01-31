@@ -39,7 +39,24 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
             .Include(b => b.Book)
-            .ThenInclude(b => b!.Genre);
+            .ThenInclude(b => b!.Genre) as IQueryable<BorrowedBook>;
+
+        if (!string.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+        {
+            var keywords = queryParameters.SearchTerm
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => k.Trim().ToLower())
+                .ToArray();
+
+            // search query for each keyword. 
+            query = query.Where(bb =>
+                keywords.Any(keyword =>
+                    bb.Borrower != null &&
+                    (bb.Borrower.FirstName.ToLower().Contains(keyword) ||
+                     bb.Borrower.LastName.ToLower().Contains(keyword))
+                    || bb.Book != null && bb.Book.Title.ToLower().Contains(keyword)
+                ));
+        }
 
         var totalCount = await query.CountAsync();
 
@@ -75,9 +92,9 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
         return borrowedBook;
     }
 
-    public async Task<PagedResponse<BorrowedBook>> GetBorrowedBooksByUserId(string userId, QueryParameters queryParameters)
+    public async Task<PagedResponse<BorrowedBook>> GetBorrowedBooksByUserId(string userId,
+        QueryParameters queryParameters)
     {
-
         var query = FindByCondition(bBook => bBook.BorrowerId.Equals(userId)).Include(b => b.Borrower)
             .Include(b => b.Borrower)
             .Include(bb => bb.Book)
@@ -89,6 +106,7 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
         var totalCount = await query.CountAsync();
 
         var borrowedBooks = await query
+            .OrderBy(b => b.BorrowedDate)
             .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
             .Take(queryParameters.PageSize)
             .ToListAsync();

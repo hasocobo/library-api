@@ -13,6 +13,8 @@ public class BorrowedBook
     public DateTime? ReturnedDate { get; set; }
 
     public bool? IsReturned { get; set; } = false;
+    
+    public BorrowStatus BorrowStatus { get; set; } = BorrowStatus.Pending;
     [MaxLength(128)] public string BorrowerId { get; set; } = Guid.Empty.ToString();
     public ApplicationUser? Borrower { get; set; }
 

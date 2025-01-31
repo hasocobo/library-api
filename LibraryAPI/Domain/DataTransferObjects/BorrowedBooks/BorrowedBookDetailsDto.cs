@@ -1,4 +1,6 @@
-﻿namespace LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
+﻿using LibraryAPI.Domain.Entities;
+
+namespace LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 
 public record BorrowedBookDetailsDto
 {
@@ -6,6 +8,7 @@ public record BorrowedBookDetailsDto
     public Guid BookId { get; init; }
     public string? Title { get; init; } = string.Empty;
     public string? AuthorName { get; init; } = string.Empty;
+    public BorrowStatus BorrowStatus { get; init; } = BorrowStatus.Pending;
     
     public string? ImageUrl { get; init; }
     

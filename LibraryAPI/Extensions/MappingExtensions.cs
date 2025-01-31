@@ -66,6 +66,7 @@ public static class MappingExtensions
             BorrowingDate = borrowedBook.BorrowedDate,
             ReturningDate = borrowedBook.ReturnedDate,
             DueDate = borrowedBook.DueDate,
+            BorrowStatus = borrowedBook.BorrowStatus,
             PenaltyPrice = borrowedBook.CalculatePenaltyPrice()
         };
     }

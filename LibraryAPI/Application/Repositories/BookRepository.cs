@@ -28,7 +28,7 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
             // search query for each keyword. 
             query = query.Where(b =>
                 keywords.Any(keyword =>
-                    b.Title.ToLower().Contains(keyword) ||
+                    b.Title.ToLower().Contains(keyword) || //tolower yerine StringOptions.OrdinalIgnoreCase ekle 
                     (b.Description != null &&
                         b.Description.ToLower().Contains(keyword) ||
                         b.Author!.FirstName.ToLower().Contains(keyword) ||
