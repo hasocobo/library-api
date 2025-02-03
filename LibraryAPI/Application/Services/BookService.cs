@@ -32,6 +32,7 @@ public class BookService : IBookService
             PublishYear = bookCreateDto.PublishYear,
             Quantity = bookCreateDto.Quantity,
             ImageUrl = bookCreateDto.ImageUrl,
+            Description = bookCreateDto.Description,
         };
 
         _repositoryManager.BookRepository.CreateBook(book);

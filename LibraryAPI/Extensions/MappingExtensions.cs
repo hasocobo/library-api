@@ -16,11 +16,13 @@ public static class MappingExtensions
             BookId = book.Id,
             Title = book.Title,
             PageCount = book.PageCount,
+            GenreId = book.GenreId,
             GenreName = book.Genre?.Name,
             ImageUrl = book.ImageUrl,
             PublishYear = book.PublishYear,
             Quantity = book.Quantity,
             AuthorName = book.Author?.FirstName + " " + book.Author?.LastName,
+            Description = book.Description,
         };
     }
 

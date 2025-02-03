@@ -15,5 +15,7 @@ public record BookCreationDto
     public int Quantity { get; set; } = 1;
     
     public string? ImageUrl { get; set; }
+    
+    public string? Description { get; set; }
 
 }

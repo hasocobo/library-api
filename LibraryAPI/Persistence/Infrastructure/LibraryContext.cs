@@ -27,7 +27,8 @@ public class LibraryContext : IdentityDbContext<ApplicationUser>
             entity
                 .HasMany(book => book.BorrowedBooks)
                 .WithOne(borrowedBook => borrowedBook.Book)
-                .HasForeignKey(borrowedBook => borrowedBook.BookId);
+                .HasForeignKey(borrowedBook => borrowedBook.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity
                 .HasOne(book => book.Author)

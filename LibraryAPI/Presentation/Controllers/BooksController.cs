@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Books;
-using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 

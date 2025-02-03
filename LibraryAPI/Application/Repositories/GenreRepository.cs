@@ -33,7 +33,7 @@ public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
     public async Task<PagedResponse<Genre>> GetGenreBySlugAsync(string slug, QueryParameters queryParameters)
     {
         var query = FindByCondition(genre => genre.Slug.Equals(slug))
-            .Include(genre => genre.Books
+            .Include(genre => genre.Books.Where(book => book.IsDeleted == false)
                 /*.Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
                 .Take(queryParameters.PageSize))  // sqlite desteklemiyor
         */).ThenInclude(b => b.Author);

@@ -8,6 +8,7 @@ public record BookDetailsDto
     public Guid AuthorId { get; init; }
     public int PublishYear { get; init; }
     public int PageCount { get; init; }
+    public Guid GenreId { get; init; }
     public string? GenreName { get; init; }
     public string? ImageUrl { get; init; }
     

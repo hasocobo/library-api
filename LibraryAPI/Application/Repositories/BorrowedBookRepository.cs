@@ -35,7 +35,8 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
 
     public async Task<PagedResponse<BorrowedBook>> GetBorrowedBooks(QueryParameters queryParameters)
     {
-        var query = FindAll().Include(b => b.Borrower)
+        var query = FindByCondition(borrowedBook => borrowedBook.Book!.IsDeleted == false)
+            .Include(b => b.Borrower)
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
             .Include(b => b.Book)
@@ -95,7 +96,7 @@ public class BorrowedBookRepository : RepositoryBase<BorrowedBook>, IBorrowedBoo
     public async Task<PagedResponse<BorrowedBook>> GetBorrowedBooksByUserId(string userId,
         QueryParameters queryParameters)
     {
-        var query = FindByCondition(bBook => bBook.BorrowerId.Equals(userId)).Include(b => b.Borrower)
+        var query = FindByCondition(bBook => bBook.BorrowerId.Equals(userId) && bBook.Book!.IsDeleted == false)
             .Include(b => b.Borrower)
             .Include(bb => bb.Book)
             .ThenInclude(b => b!.Author)
