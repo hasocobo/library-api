@@ -24,14 +24,18 @@ public class BorrowedBook
     public int CalculatePenaltyPrice()
     {
         int penaltyPrice = 0;
-        int timeSpan = IsReturned == false ?
-            DateTime.UtcNow.Subtract(BorrowedDate).Minutes :
-            ReturnedDate!.Value.Subtract(BorrowedDate).Minutes;
+        int timeSpan = 0;
+        // TODO: remove isReturned, no need for it
+        if (IsReturned == null || IsReturned == false || ReturnedDate == null)
+            timeSpan = DateTime.UtcNow.Subtract(BorrowedDate).Days;
+        
+        if (IsReturned == true && ReturnedDate != null)
+            timeSpan = ReturnedDate!.Value.Subtract(BorrowedDate).Days;
 
-        if (timeSpan <= 10)
+        if (timeSpan <= 1)
             penaltyPrice = 0;
         else
-            penaltyPrice = (timeSpan - 10) * 10;
+            penaltyPrice = timeSpan * 10;
 
         return penaltyPrice;
     }

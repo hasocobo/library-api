@@ -75,15 +75,15 @@ public class BorrowedBookService : IBorrowedBookService
         _logger.LogInformation($"Retrieving borrowed books by user with ID: {userId}");
         var paginatedResponse =
             await _repositoryManager.BorrowedBookRepository.GetBorrowedBooksByUserId(userId, queryParameters);
-        
+
         var borrowedBooks = paginatedResponse.Items as List<BorrowedBook>;
-        
+
         if (borrowedBooks == null)
         {
             _logger.LogInformation("No borrowed books found");
             return new PagedResponse<BorrowedBookDetailsDto> { Items = Array.Empty<BorrowedBookDetailsDto>() };
         }
-        
+
         var booksToReturn = borrowedBooks.Select(b => b.ToDetailsDto());
 
         var newPaginatedResult = new PagedResponse<BorrowedBookDetailsDto>
@@ -185,9 +185,88 @@ public class BorrowedBookService : IBorrowedBookService
         var borrowedBook = await _repositoryManager.BorrowedBookRepository.GetBorrowedBookById(borrowedBookId);
         if (borrowedBook == null)
             throw new NotFoundException("Borrowed Book", borrowedBookId);
-
         if (borrowedBookUpdateDto.DueDate != null) borrowedBook.DueDate = borrowedBookUpdateDto.DueDate;
-        if (borrowedBookUpdateDto.IsReturned != null) borrowedBook.IsReturned = (bool)borrowedBookUpdateDto.IsReturned;
+/***
+ * returns book if isReturned goes from false -> true,
+ * if it was already true, that is, returned before, just edits its return date
+ */
+        if (borrowedBookUpdateDto.IsReturned != null)
+        {
+            if (borrowedBookUpdateDto.IsReturned == true)
+            {
+                if (borrowedBook.IsReturned == false) // returns book, increases quantity by 1
+                {
+                    await using var transaction = await _repositoryManager.BeginTransactionAsync();
+                    try
+                    {
+                        borrowedBook.IsReturned = true;
+                        if (borrowedBookUpdateDto.ReturnedDate != null)
+                        {
+                            borrowedBook.ReturnedDate = borrowedBookUpdateDto.ReturnedDate;
+                        }
+                        else
+                        {
+                            borrowedBook.ReturnedDate = DateTime.UtcNow;
+                        }
+
+                        _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+                        await _repositoryManager.SaveAsync();
+
+                        var book = await _repositoryManager.BookRepository.GetBookByIdAsync(borrowedBook.BookId);
+                        book!.Quantity = book.Quantity + 1;
+                        _repositoryManager.BookRepository.UpdateBook(book);
+                        await _repositoryManager.SaveAsync();
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                }
+                else
+                {
+                    borrowedBook.ReturnedDate = borrowedBookUpdateDto.ReturnedDate;
+                    _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+                    await _repositoryManager.SaveAsync();
+                }
+            }
+            else
+            {
+                if (borrowedBook.IsReturned ==
+                    true) // reverts it to borrowed if a borrowed book was marked as returned by mistake
+                {
+                    await using var transaction = await _repositoryManager.BeginTransactionAsync();
+                    try
+                    {
+                        borrowedBook.IsReturned = false;
+                        borrowedBook.ReturnedDate = null;
+
+                        _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+                        await _repositoryManager.SaveAsync();
+
+                        var book = await _repositoryManager.BookRepository.GetBookByIdAsync(borrowedBook.BookId);
+                        book!.Quantity = book.Quantity - 1;
+                        _repositoryManager.BookRepository.UpdateBook(book);
+                        await _repositoryManager.SaveAsync();
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                }
+                else
+                {
+                    if (borrowedBookUpdateDto.ReturnedDate != null)
+                        borrowedBook.ReturnedDate = borrowedBookUpdateDto.ReturnedDate;
+                    _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
+                    await _repositoryManager.SaveAsync();
+                }
+            }
+        }
+
 
         _repositoryManager.BorrowedBookRepository.UpdateBorrowedBook(borrowedBook);
         await _repositoryManager.SaveAsync();
