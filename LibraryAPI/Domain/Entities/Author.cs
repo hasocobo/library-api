@@ -13,7 +13,6 @@ public class Author
     
     [MaxLength(250)]
     public string? Bio { get; set; } = string.Empty;
-    
     public DateTime? DateOfBirth { get; set; } = DateTime.MinValue;
     
     public DateTime? DateOfDeath { get; set; }

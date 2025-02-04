@@ -14,7 +14,7 @@ public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
 
     public async Task<IEnumerable<Genre>> GetGenresAsync()
     {
-        var query = FindAll();
+        var query = FindAll().Include(genre => genre.ParentGenre);
 
         var genres = await query.ToListAsync();
 
@@ -23,7 +23,8 @@ public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
 
     public async Task<Genre?> GetGenreByIdAsync(Guid id)
     {
-        var query = FindByCondition(genre => genre.Id.Equals(id));
+        var query = FindByCondition(genre => genre.Id.Equals(id))
+            .Include(genre => genre.ParentGenre);
 
         var genre = await query.FirstOrDefaultAsync();
 

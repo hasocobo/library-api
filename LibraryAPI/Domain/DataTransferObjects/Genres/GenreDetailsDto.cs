@@ -17,5 +17,7 @@ public record GenreDetailsDto
     
     public Guid? ParentGenreId { get; init; }
     
+    public string? ParentGenreName { get; init; } = string.Empty;
+    
     public ICollection<BookDetailsDto> Books { get; init; } = new List<BookDetailsDto>();
 }

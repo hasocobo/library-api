@@ -32,7 +32,8 @@ public static class MappingExtensions
         {
             Id = author.Id,
             ApplicationUserId = author.ApplicationUserId,
-            FullName = $"{author.FirstName} {author.LastName}",
+            FirstName = author.FirstName,
+            LastName = author.LastName,
             DateOfBirth = author.DateOfBirth,
             DateOfDeath = author.DateOfDeath,
         };
@@ -46,7 +47,8 @@ public static class MappingExtensions
             Name = genre.Name,
             Slug = genre.Slug,
             ParentGenreId = genre.ParentGenreId,
-            Books = genre.Books.Select(b => b.ToDetailsDto()).ToList()
+            Books = genre.Books.Select(b => b.ToDetailsDto()).ToList(),
+            ParentGenreName = genre.ParentGenre?.Name
         };
     }
 

@@ -1,12 +1,10 @@
 ﻿using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Application.Services.Interfaces;
-using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
 using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Application.Services;
 
@@ -95,7 +93,10 @@ public class GenreService : IGenreService
             throw new NotFoundException("Genre", genreId);
 
         if (genreUpdateDto.Name != null) genreToUpdate.Name = genreUpdateDto.Name;
-        if (genreUpdateDto.ParentGenreId != null) genreToUpdate.ParentGenreId = genreUpdateDto.ParentGenreId;
+        if (genreUpdateDto.ParentGenreId != null && genreUpdateDto.ParentGenreId != Guid.Empty)
+            genreToUpdate.ParentGenreId = genreUpdateDto.ParentGenreId;
+        if (genreUpdateDto.ParentGenreId == Guid.Empty && genreToUpdate.ParentGenreId != null)
+            genreToUpdate.ParentGenreId = null;
         if (genreUpdateDto.Slug != null) genreToUpdate.Slug = genreUpdateDto.Slug;
 
         _repositoryManager.GenreRepository.UpdateGenre(genreToUpdate);

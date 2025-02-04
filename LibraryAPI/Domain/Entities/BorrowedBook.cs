@@ -23,8 +23,8 @@ public class BorrowedBook
 
     public int CalculatePenaltyPrice()
     {
-        int penaltyPrice = 0;
-        int timeSpan = 0;
+        var penaltyPrice = 0;
+        var timeSpan = 0;
         // TODO: remove isReturned, no need for it
         if (IsReturned == null || IsReturned == false || ReturnedDate == null)
             timeSpan = DateTime.UtcNow.Subtract(BorrowedDate).Days;
@@ -32,9 +32,7 @@ public class BorrowedBook
         if (IsReturned == true && ReturnedDate != null)
             timeSpan = ReturnedDate!.Value.Subtract(BorrowedDate).Days;
 
-        if (timeSpan <= 1)
-            penaltyPrice = 0;
-        else
+        if (timeSpan > 1)
             penaltyPrice = timeSpan * 10;
 
         return penaltyPrice;
