@@ -1,5 +1,7 @@
-﻿using LibraryAPI.Application.Services.Interfaces;
+﻿using System.Text.Json;
+using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Authors;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -16,9 +18,19 @@ public class AuthorsController : ControllerBase
     }
 
     [HttpGet("authors")]
-    public async Task<ActionResult<IEnumerable<AuthorDetailsDto>>> GetAuthors()
+    public async Task<ActionResult<IEnumerable<AuthorDetailsDto>>> GetAuthors([FromQuery] QueryParameters queryParameters)
     {
-        var authors = await _serviceManager.AuthorService.GetAuthorsAsync();
+        var pagedResponse = await _serviceManager.AuthorService.GetAuthorsAsync(queryParameters);
+        
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
+        var authors = pagedResponse.Items;
         return Ok(authors);
     }
 

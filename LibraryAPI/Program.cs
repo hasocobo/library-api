@@ -42,6 +42,11 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.ConfigureCors();
     builder.Services.ConfigureIdentity();
     builder.Services.ConfigureJwtAuthentication(builder.Configuration);
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("UserOnly", policy => policy.RequireRole("Admin", "User"));
+    });
 }
 
 var app = builder.Build();

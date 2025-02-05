@@ -57,14 +57,17 @@ public class AuthService : IAuthService
 
         _logger.LogInformation($"Returning all {users.Count} users");
 
-        var usersToReturn = users.Select(user => new UserDetails
+        var usersToReturnTasks = users.Select(async user => new UserDetails
         {
             Id = user.Id,
             Email = user.Email,
             Username = user.UserName,
             FirstName = user.FirstName,
-            LastName = user.LastName
+            LastName = user.LastName,
+            Roles =  await _userManager.GetRolesAsync(user)
         });
+        
+        var usersToReturn = await Task.WhenAll(usersToReturnTasks);
 
         return usersToReturn;
     }
@@ -164,7 +167,7 @@ public class AuthService : IAuthService
             issuer: jwtSettings["validIssuer"],
             audience: jwtSettings["validAudience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expires"])),
+            expires: DateTime.Now.AddHours(Convert.ToDouble(jwtSettings["expires"])),
             signingCredentials: signingCredentials
         );
 

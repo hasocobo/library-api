@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using LibraryAPI.Application.Repositories.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
 
 namespace ExcelExportService;
@@ -25,7 +26,8 @@ public class Worker : BackgroundService
         {
             using var scope = _serviceProvider.CreateScope();
             var borrowedBookService = scope.ServiceProvider.GetService<IBorrowedBookRepository>();
-            var borrowedBooks = await borrowedBookService!.GetBorrowedBooks() as List<BorrowedBook>;
+            var queryParameters = new QueryParameters { PageSize = 200 };
+            var borrowedBooks = (await borrowedBookService!.GetBorrowedBooks(queryParameters)).Items as List<BorrowedBook>;
 
             borrowedBooks!.Sort((a, b) => a.BorrowedDate.CompareTo(b.BorrowedDate));
 

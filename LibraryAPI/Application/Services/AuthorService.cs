@@ -3,6 +3,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Authors;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using LibraryAPI.Extensions;
 
 namespace LibraryAPI.Application.Services;
@@ -34,20 +35,33 @@ public class AuthorService : IAuthorService
         return authorToReturn;
     }
 
-    public async Task<IEnumerable<AuthorDetailsDto>> GetAuthorsAsync()
+    public async Task<PagedResponse<AuthorDetailsDto>> GetAuthorsAsync(QueryParameters queryParameters)
     {
         _logger.LogInformation("Retrieving authors");
-        var authors = await _repositoryManager.AuthorRepository.GetAuthorsAsync() as List<Author>;
+        var paginatedResponse = await _repositoryManager.AuthorRepository.GetAuthorsAsync(queryParameters); 
+        var authors = paginatedResponse.Items as List<Author>;
 
         if (authors == null)
         {
             _logger.LogInformation("No authors found");
-            return Array.Empty<AuthorDetailsDto>();
+            return new PagedResponse<AuthorDetailsDto>()
+            {
+                Items = Array.Empty<AuthorDetailsDto>()
+            };
         }
 
         _logger.LogInformation("Returning author details");
         var authorsToReturn = authors.Select(a => a.ToDetailsDto());
-        return authorsToReturn;
+        var newPaginatedResult = new PagedResponse<AuthorDetailsDto>
+        {
+            Items = authorsToReturn,
+            PageNumber = paginatedResponse.PageNumber,
+            PageSize = paginatedResponse.PageSize,
+            TotalPages = paginatedResponse.TotalPages,
+            TotalCount = paginatedResponse.TotalCount
+        };
+        
+        return newPaginatedResult;
     }
 
     public async Task<AuthorDetailsDto> CreateAuthorAsync(AuthorCreationDto authorCreationDto)

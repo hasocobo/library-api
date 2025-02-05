@@ -1,11 +1,12 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects.Authors;
+using LibraryAPI.Domain.QueryFeatures;
 
 namespace LibraryAPI.Application.Services.Interfaces;
 
 public interface IAuthorService
 {
     Task<AuthorDetailsDto> GetAuthorByIdAsync(Guid authorId);
-    Task<IEnumerable<AuthorDetailsDto>> GetAuthorsAsync();
+    Task<PagedResponse<AuthorDetailsDto>> GetAuthorsAsync(QueryParameters queryParameters);
     
     Task<AuthorDetailsDto> CreateAuthorAsync(AuthorCreationDto author);
     
