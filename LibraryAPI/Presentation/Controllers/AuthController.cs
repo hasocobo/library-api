@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Users;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -21,7 +23,6 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<UserDetails>> RegisterUser([FromBody] UserRegistrationDto userRegistrationDto)
     {
         var registeredUser = await _serviceManager.AuthService.RegisterUserAsync(userRegistrationDto);
-        // if roles.contains author -> AuthorService.CreateAuthor
         return Ok(registeredUser);
     }
 
@@ -33,10 +34,20 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<ActionResult<IEnumerable<UserDetails>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserDetails>>> GetUsers([FromQuery] QueryParameters queryParameters)
     {
-        var usersToReturn = await _serviceManager.AuthService.GetUsersAsync();
-
+        var pagedResponse = await _serviceManager.AuthService.GetUsersAsync(queryParameters);
+        var usersToReturn = pagedResponse.Items;
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
+        
         return Ok(usersToReturn);
     }
 

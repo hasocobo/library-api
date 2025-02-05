@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Domain.DataTransferObjects.Users;
 using LibraryAPI.Domain.Entities;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Identity;
 
 namespace LibraryAPI.Application.Services.Interfaces;
@@ -7,7 +8,7 @@ namespace LibraryAPI.Application.Services.Interfaces;
 public interface IAuthService
 {
     Task<UserDetails> GetUserByIdAsync(string id);
-    Task<IEnumerable<UserDetails>> GetUsersAsync();
+    Task<PagedResponse<UserDetails>> GetUsersAsync(QueryParameters queryParameters);
     Task<UserDetails> RegisterUserAsync(UserRegistrationDto userRegistrationDto);
     Task<(string, UserDetails)> LoginAsync();
     Task<bool> ValidateUserAsync(UserAuthenticationDto userAuthenticationDto);

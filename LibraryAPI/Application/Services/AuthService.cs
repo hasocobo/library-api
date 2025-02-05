@@ -5,6 +5,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Users;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.Exceptions;
+using LibraryAPI.Domain.QueryFeatures;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,10 +51,31 @@ public class AuthService : IAuthService
         return userDetails;
     }
 
-    public async Task<IEnumerable<UserDetails>> GetUsersAsync()
+    public async Task<PagedResponse<UserDetails>> GetUsersAsync(QueryParameters queryParameters)
     {
         _logger.LogInformation($"Getting all users");
-        var users = await _userManager.Users.ToListAsync();
+        var query = _userManager.Users;
+
+        if (!String.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+        {
+            var keywords = queryParameters.SearchTerm
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim().ToLower()).ToArray();
+
+            query = query.Where(user => keywords.Any(keyword =>
+                user.FirstName.ToLower().Contains(keyword) || user.LastName.ToLower().Contains(keyword) ||
+                (user.Email != null && user.Email.ToLower().Contains(keyword)) ||
+                (user.UserName != null && user.UserName.ToLower().Contains(keyword)) ||
+                user.Id.ToLower().Contains(keyword)));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var users = await query
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
+            .ToListAsync();
+
 
         _logger.LogInformation($"Returning all {users.Count} users");
 
@@ -64,18 +86,26 @@ public class AuthService : IAuthService
             Username = user.UserName,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Roles =  await _userManager.GetRolesAsync(user)
+            Roles = await _userManager.GetRolesAsync(user)
         });
-        
-        var usersToReturn = await Task.WhenAll(usersToReturnTasks);
 
-        return usersToReturn;
+        var usersToReturn = await Task.WhenAll(usersToReturnTasks);
+        
+        var pagedResponse = new PagedResponse<UserDetails>
+        {
+            TotalCount = totalCount,
+            PageNumber = queryParameters.PageNumber,
+            PageSize = queryParameters.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / queryParameters.PageSize),
+            Items = usersToReturn
+        };
+        return pagedResponse;
     }
 
     public async Task<UserDetails> RegisterUserAsync(UserRegistrationDto userRegistrationDto)
     {
         _logger.LogInformation($"Registering new user with username {userRegistrationDto.UserName}");
-        
+
         var newUser = new ApplicationUser
         {
             Email = userRegistrationDto.Email,
@@ -92,6 +122,10 @@ public class AuthService : IAuthService
             if (userRegistrationDto.Roles != null)
             {
                 var normalizedRoles = userRegistrationDto.Roles.Select(role => role.ToUpperInvariant()).ToList();
+                if (!normalizedRoles.Contains("USER"))
+                {
+                    normalizedRoles.Add("USER");
+                }
                 await _userManager.AddToRolesAsync(newUser, normalizedRoles);
                 roles = normalizedRoles;
                 _logger.LogInformation($"Registering roles to user is successful.");
@@ -104,9 +138,9 @@ public class AuthService : IAuthService
         }
         else
         {
-            throw new AuthenticationFailureException( result.Errors.ToList()[0].Description);
+            throw new AuthenticationFailureException(result.Errors.ToList()[0].Description);
         }
-        
+
         var userDetails = new UserDetails
         {
             Id = newUser.Id,
@@ -125,7 +159,7 @@ public class AuthService : IAuthService
     {
         if (_user == null)
             throw new NotFoundException("User", Guid.Parse(_user!.Id));
-        
+
         var token = await CreateTokenAsync();
         var roles = await _userManager.GetRolesAsync(_user!);
         var userDetails = new UserDetails
@@ -138,9 +172,10 @@ public class AuthService : IAuthService
             Username = _user.UserName,
             Roles = roles
         };
-        
+
         return (token, userDetails);
     }
+
     private async Task<string> CreateTokenAsync()
     {
         if (_user == null) throw new UnauthorizedAccessException();

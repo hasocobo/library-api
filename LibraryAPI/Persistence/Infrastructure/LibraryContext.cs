@@ -97,7 +97,7 @@ public class LibraryContext : IdentityDbContext<ApplicationUser>
             (
                 new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "3d09660f-c1e2-4f45-878c-5d19adcfc44d"},
                 new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER", ConcurrencyStamp = "1894d025-0243-4892-b115-56c333fb9a2d"},
-                new IdentityRole { Id = "3", Name = "Author", NormalizedName = "AUTHOR", ConcurrencyStamp = "a84be136-d8b4-4cfe-aae3-70c30b620527"}
+                new IdentityRole { Id = "3", Name = "Librarian", NormalizedName = "LIBRARIAN", ConcurrencyStamp = "a84be136-d8b4-4cfe-aae3-70c30b620527"}
             );
     }
 }
