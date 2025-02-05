@@ -3,6 +3,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Genres;
 using LibraryAPI.Domain.Entities;
 using LibraryAPI.Domain.QueryFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -18,6 +19,7 @@ public class GenresController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    [AllowAnonymous]
     [HttpGet("genres")]
     public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetAllGenres([FromQuery] QueryParameters queryParameters)
     {
@@ -37,6 +39,7 @@ public class GenresController : ControllerBase
         return Ok(genres);
     }
 
+    [AllowAnonymous]
     [HttpGet("genres/{genreId:guid}")]
     public async Task<ActionResult<GenreDetailsDto>> GetGenreById(Guid genreId)
     {
@@ -44,6 +47,7 @@ public class GenresController : ControllerBase
         return Ok(genre);
     }
 
+    [AllowAnonymous]
     [HttpGet("genres/{slug}")]
     public async Task<ActionResult<GenreDetailsDto>> GetGenreBySlug(string slug,
         [FromQuery] QueryParameters queryParameters)
@@ -61,6 +65,7 @@ public class GenresController : ControllerBase
         return Ok(genre);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpPost("genres")]
     public async Task<ActionResult> CreateGenre([FromBody] GenreCreationDto genreCreationDto)
     {
@@ -68,6 +73,7 @@ public class GenresController : ControllerBase
         return CreatedAtAction(nameof(GetGenreById), new { genreId = genreToReturn.Id }, genreToReturn);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpPut("genres/{genreId}")]
     public async Task<ActionResult> UpdateGenre(Guid genreId, [FromBody] GenreUpdateDto genreUpdateDto)
     {
@@ -75,6 +81,7 @@ public class GenresController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpDelete("genres/{genreId}")]
     public async Task<ActionResult> DeleteGenre(Guid genreId)
     {

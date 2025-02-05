@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using LibraryAPI.Domain.Exceptions;
 using LibraryAPI.Extensions;
 using LibraryAPI.Persistence.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -45,7 +46,11 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-        options.AddPolicy("UserOnly", policy => policy.RequireRole("Admin", "User"));
+        options.AddPolicy("Librarian", policy => policy.RequireRole("Admin", "Librarian"));
+        
+        options.FallbackPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser() 
+            .Build();
     });
 }
 
@@ -74,6 +79,10 @@ var app = builder.Build();
     app.UseRouting();
 
     app.UseCors("CorsPolicy");
+    
+    app.UseAuthentication();
+
+    app.UseAuthorization();
 
     app.MapControllers();
 }

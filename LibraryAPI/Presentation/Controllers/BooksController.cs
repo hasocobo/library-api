@@ -2,6 +2,7 @@
 using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Books;
 using LibraryAPI.Domain.QueryFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -16,7 +17,8 @@ public class BooksController : ControllerBase
     {
         _serviceManager = serviceManager;
     }
-
+    
+    [AllowAnonymous]
     [HttpGet("books")]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooks([FromQuery] QueryParameters queryParameters)
     {
@@ -35,6 +37,7 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpGet("deleted-books")]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetDeletedBooks()
     {
@@ -42,13 +45,15 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpGet("deleted-books/{deletedBookId}")]
     public async Task<ActionResult<BookDetailsDto>> GetDeletedBookById(Guid deletedBookId)
     {
         var deletedBook = await _serviceManager.BookService.GetDeletedBookByIdAsync(deletedBookId);
         return Ok(deletedBook);
     }
-
+    
+    [Authorize(Policy = "Librarian")]
     [HttpDelete("deleted-books/{deletedBookId}")]
     public async Task<ActionResult<BookDetailsDto>> RestoreDeletedBookById(Guid deletedBookId)
     {
@@ -56,6 +61,7 @@ public class BooksController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpDelete("deleted-books")]
     public async Task<ActionResult<BookDetailsDto>> RestoreDeletedBooks()
     {
@@ -63,6 +69,7 @@ public class BooksController : ControllerBase
         return NoContent();
     }
 
+    [AllowAnonymous]
     [HttpGet("books/{bookId:guid}")]
     public async Task<ActionResult<BookDetailsDto>> GetBookById(Guid bookId)
     {
@@ -70,6 +77,7 @@ public class BooksController : ControllerBase
         return Ok(book);
     }
 
+    [AllowAnonymous]
     [HttpGet("authors/{authorId:guid}/books")]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooksByAuthorId(Guid authorId)
     {
@@ -77,6 +85,7 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    [AllowAnonymous]
     [HttpGet("genres/{genreId:guid}/books")]
     public async Task<ActionResult<IEnumerable<BookDetailsDto>>> GetBooksByGenreId(Guid genreId)
     {
@@ -84,7 +93,7 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
-
+    [Authorize(Policy = "Librarian")]
     [HttpPost("authors/{authorId:guid}/books")]
     public async Task<ActionResult<BookDetailsDto>> CreateBook([FromBody] BookCreationDto bookToCreate, Guid authorId,
         Guid genreId)
@@ -93,6 +102,7 @@ public class BooksController : ControllerBase
         return CreatedAtAction(nameof(GetBookById), new { bookId = bookToReturn.BookId }, bookToReturn);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpPut("books/{bookId:guid}")]
     public async Task<ActionResult> UpdateBook(Guid bookId, [FromBody] BookUpdateDto bookToUpdate)
     {
@@ -100,6 +110,7 @@ public class BooksController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpDelete("books/{bookId:guid}")]
     public async Task<ActionResult> DeleteBook(Guid bookId)
     {

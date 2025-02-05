@@ -4,6 +4,7 @@ using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Users;
 using LibraryAPI.Domain.Exceptions;
 using LibraryAPI.Domain.QueryFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -19,6 +20,7 @@ public class AuthController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    [AllowAnonymous]
     [HttpPost("users")]
     public async Task<ActionResult<UserDetails>> RegisterUser([FromBody] UserRegistrationDto userRegistrationDto)
     {
@@ -26,6 +28,7 @@ public class AuthController : ControllerBase
         return Ok(registeredUser);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("users/{id}")]
     public async Task<ActionResult<UserDetails>> GetUserById(string id)
     {
@@ -33,6 +36,7 @@ public class AuthController : ControllerBase
         return Ok(userToReturn);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("users")]
     public async Task<ActionResult<IEnumerable<UserDetails>>> GetUsers([FromQuery] QueryParameters queryParameters)
     {
@@ -51,6 +55,7 @@ public class AuthController : ControllerBase
         return Ok(usersToReturn);
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult> Authenticate([FromBody] UserAuthenticationDto userAuthenticationDto)
     {
@@ -64,6 +69,7 @@ public class AuthController : ControllerBase
         return Ok(new { jwtToken, userDetails });
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("users/{userId}")]
     public async Task<ActionResult> DeleteUser(string userId)
     {
@@ -71,18 +77,20 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("users/{userId}")]
     public async Task<ActionResult> ChangeUserInformation(string userId, UserUpdateDto userUpdateDto)
     {
         await _serviceManager.AuthService.ChangeUserInformationAsync(userId, userUpdateDto);
         return Ok();
     }
-
+    
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("/me")]
     public async Task<ActionResult<UserDetails>> GetCurrentUserInfo()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _serviceManager.AuthService.GetUserByIdAsync(userId!);
+        var user = await _serviceManager.AuthService.GetUserByIdAsync(userId);
 
         return Ok(user);
     }

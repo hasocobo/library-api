@@ -2,10 +2,12 @@
 using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.Authors;
 using LibraryAPI.Domain.QueryFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
 
+[Authorize(Policy = "Librarian")]
 [Route("api/v1/")]
 [ApiController]
 public class AuthorsController : ControllerBase
@@ -17,6 +19,7 @@ public class AuthorsController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    [AllowAnonymous]
     [HttpGet("authors")]
     public async Task<ActionResult<IEnumerable<AuthorDetailsDto>>> GetAuthors([FromQuery] QueryParameters queryParameters)
     {
@@ -34,6 +37,7 @@ public class AuthorsController : ControllerBase
         return Ok(authors);
     }
 
+    [AllowAnonymous]
     [HttpGet("authors/{authorId}")]
     public async Task<ActionResult<AuthorDetailsDto>> GetAuthorById(Guid authorId)
     {

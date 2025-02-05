@@ -2,6 +2,7 @@
 using LibraryAPI.Application.Services.Interfaces;
 using LibraryAPI.Domain.DataTransferObjects.BorrowedBooks;
 using LibraryAPI.Domain.QueryFeatures;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Presentation.Controllers;
@@ -68,7 +69,7 @@ public class BorrowedBookController : ControllerBase
 
         return Ok(borrowedBooks);
     }
-
+    
     [HttpGet("borrowed-books/{borrowedBookId:guid}")]
     public async Task<ActionResult<BorrowedBookDetailsDto>> GetBorrowedBookById(Guid borrowedBookId)
     {
@@ -87,6 +88,7 @@ public class BorrowedBookController : ControllerBase
         return CreatedAtAction(nameof(GetBorrowedBookById), new { borrowedBookId = bookToReturn.Id }, bookToReturn);
     }
 
+    [Authorize(Policy = "Librarian")]
     [HttpPut("borrowed-books/{borrowedBookId:guid}")]
     public async Task<ActionResult> UpdateBorrowedBook(Guid borrowedBookId,
         [FromBody] BorrowedBookUpdateDto bookToUpdate)
