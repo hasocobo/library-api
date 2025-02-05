@@ -14,9 +14,19 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
 
     public async Task<PagedResponse<Book>> GetBooksAsync(QueryParameters queryParameters)
     {
-        var query = FindByCondition(book => book.IsDeleted == false)
+        var query = FindByCondition(book =>
+                book.IsDeleted == false &&
+                (queryParameters.GenreId == null || book.GenreId == queryParameters.GenreId) &&
+                (queryParameters.AuthorId == null || book.AuthorId == queryParameters.AuthorId))
             .Include(book => book.Author)
             .Include(book => book.Genre) as IQueryable<Book>;
+
+        if (queryParameters.SortDescending != null)
+        {
+            query = (bool)queryParameters.SortDescending 
+                ? query.OrderByDescending(book => book.Title )
+                : query.OrderBy(book => book.Title);
+        }
 
         if (!string.IsNullOrWhiteSpace(queryParameters.SearchTerm))
         {
@@ -30,9 +40,9 @@ public class BookRepository : RepositoryBase<Book>, IBookRepository
                 keywords.Any(keyword =>
                     b.Title.ToLower().Contains(keyword) || //tolower yerine StringOptions.OrdinalIgnoreCase ekle 
                     (b.Description != null &&
-                        b.Description.ToLower().Contains(keyword) ||
-                        b.Author!.FirstName.ToLower().Contains(keyword) ||
-                        b.Author.LastName.ToLower().Contains(keyword))
+                     b.Description.ToLower().Contains(keyword) ||
+                     b.Author!.FirstName.ToLower().Contains(keyword) ||
+                     b.Author.LastName.ToLower().Contains(keyword))
                 ));
         }
 

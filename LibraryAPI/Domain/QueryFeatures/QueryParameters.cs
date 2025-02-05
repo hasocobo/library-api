@@ -18,4 +18,8 @@ public record QueryParameters
     }
 
     public string? SearchTerm { get; set; }
+    
+    public Guid? GenreId { get; set; }
+    public Guid? AuthorId { get; set; }
+    public bool? SortDescending { get; set; }
 }
