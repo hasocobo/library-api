@@ -19,9 +19,20 @@ public class GenresController : ControllerBase
     }
 
     [HttpGet("genres")]
-    public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetAllGenres()
+    public async Task<ActionResult<IEnumerable<GenreDetailsDto>>> GetAllGenres([FromQuery] QueryParameters queryParameters)
     {
-        var genres = await _serviceManager.GenreService.GetAllGenresAsync();
+        var pagedResponse = await _serviceManager.GenreService.GetAllGenresAsync(queryParameters);
+        var genres = pagedResponse.Items;
+        
+        var paginationMetadata = new
+        {
+            PageNumber = pagedResponse.PageNumber,
+            TotalPages = pagedResponse.TotalPages,
+            PageSize = pagedResponse.PageSize,
+            TotalCount = pagedResponse.TotalCount
+        };
+        
+        Response.Headers["LibraryApi-Pagination"] = JsonSerializer.Serialize(paginationMetadata);
 
         return Ok(genres);
     }

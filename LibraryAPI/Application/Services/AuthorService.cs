@@ -37,7 +37,8 @@ public class AuthorService : IAuthorService
 
     public async Task<PagedResponse<AuthorDetailsDto>> GetAuthorsAsync(QueryParameters queryParameters)
     {
-        _logger.LogInformation("Retrieving authors");
+        _logger.LogInformation(
+            $"Retrieving authors at page {queryParameters.PageNumber} with page size {queryParameters.PageSize}.");
         var paginatedResponse = await _repositoryManager.AuthorRepository.GetAuthorsAsync(queryParameters); 
         var authors = paginatedResponse.Items as List<Author>;
 

@@ -52,18 +52,35 @@ public class GenreService : IGenreService
         return newPaginatedResult;
     }
 
-    public async Task<IEnumerable<GenreDetailsDto>> GetAllGenresAsync()
+    public async Task<PagedResponse<GenreDetailsDto>> GetAllGenresAsync(QueryParameters queryParameters)
     {
-        _logger.LogInformation($"Retrieving all genres");
-        var genres = await _repositoryManager.GenreRepository.GetGenresAsync() as List<Genre>;
+        _logger.LogInformation(
+            $"Retrieving genres at page {queryParameters.PageNumber} with page size {queryParameters.PageSize}.");
+        var pagedResponse = await _repositoryManager.GenreRepository.GetGenresAsync(queryParameters);
+
+        var genres = pagedResponse.Items as List<Genre>;
         if (genres == null)
         {
             _logger.LogInformation("No genres found");
-            return Array.Empty<GenreDetailsDto>();
+            return new PagedResponse<GenreDetailsDto>()
+            {
+                Items = Array.Empty<GenreDetailsDto>()
+            };
         }
 
         _logger.LogInformation($"Returning {genres.Count} genres with details");
-        return genres.Select(g => g.ToDetailsDto());
+        var genresToReturn = genres.Select(g => g.ToDetailsDto());
+
+        var newPagedResponse = new PagedResponse<GenreDetailsDto>()
+        {
+            Items = genresToReturn,
+            PageNumber = pagedResponse.PageNumber,
+            PageSize = pagedResponse.PageSize,
+            TotalPages = pagedResponse.TotalPages,
+            TotalCount = pagedResponse.TotalCount
+        };
+        
+        return newPagedResponse;
     }
 
     public async Task<GenreDetailsDto> CreateGenre(GenreCreationDto genreCreationDto)

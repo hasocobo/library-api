@@ -5,7 +5,7 @@ namespace LibraryAPI.Application.Repositories.Interfaces;
 
 public interface IGenreRepository
 {
-    Task<IEnumerable<Genre>> GetGenresAsync();
+    Task<PagedResponse<Genre>> GetGenresAsync(QueryParameters queryParameters);
     Task<Genre?> GetGenreByIdAsync(Guid id);
     Task<PagedResponse<Genre>> GetGenreBySlugAsync(string slug, QueryParameters queryParameters);
     

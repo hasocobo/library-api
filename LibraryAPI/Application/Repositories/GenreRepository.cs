@@ -12,13 +12,37 @@ public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
     {
     }
 
-    public async Task<IEnumerable<Genre>> GetGenresAsync()
+    public async Task<PagedResponse<Genre>> GetGenresAsync(QueryParameters queryParameters)
     {
-        var query = FindAll().Include(genre => genre.ParentGenre);
+        var query = FindAll().Include(genre => genre.ParentGenre) as IQueryable<Genre>;
 
-        var genres = await query.ToListAsync();
+        if (!String.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+        {
+            var keywords = queryParameters.SearchTerm
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim().ToLower()).ToArray();
 
-        return genres;
+            query = query.Where(genre => keywords.Any(keyword =>
+                genre.Name.ToLower().Contains(keyword) || genre.Slug.ToLower().Contains(keyword)));
+        }
+        
+        var totalCount = await query.CountAsync();
+
+        var genres = await query
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
+            .ToListAsync();
+
+        var pagedResponse = new PagedResponse<Genre>()
+        {
+            Items = genres,
+            PageNumber = queryParameters.PageNumber,
+            PageSize = queryParameters.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)queryParameters.PageSize)
+        };
+
+        return pagedResponse;
     }
 
     public async Task<Genre?> GetGenreByIdAsync(Guid id)
