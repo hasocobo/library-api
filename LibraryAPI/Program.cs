@@ -20,7 +20,10 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddLogging();
 
     builder.Services.AddDbContext<LibraryContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("LibraryDB")));
+    {
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "library.db");
+        options.UseSqlite($"Data Source={dbPath}");
+    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddRateLimiter(_ => _
         .AddFixedWindowLimiter(policyName: "fixed", options =>
