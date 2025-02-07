@@ -90,7 +90,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<UserDetails>> GetCurrentUserInfo()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _serviceManager.AuthService.GetUserByIdAsync(userId);
+        var user = await _serviceManager.AuthService.GetUserByIdAsync(userId!);
 
         return Ok(user);
     }

@@ -20,8 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddLogging();
 
     builder.Services.AddDbContext<LibraryContext>(options =>
-    {
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "library.db");
+    { 
+        var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "library.db");
         options.UseSqlite($"Data Source={dbPath}");
     });
     builder.Services.AddEndpointsApiExplorer();
